@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon server.js",
-    "prod": "node server.js" // Added production script
+    "run": "node server.js",
+    "build": "netlify deploy --prod"
   },
   "keywords": [],
   "author": "",
@@ -18,10 +19,13 @@
     "express": "^4.21.1",
     "jsonwebtoken": "^9.0.2",
     "mongoose": "^8.7.2",
+    "netlify-cli": "^17.37.2",
+    "netlify-lambda": "^2.0.16",
     "nodemon": "^3.1.7",
     "passport": "^0.7.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",
-    "passport-instagram": "^1.0.0"
+    "passport-instagram": "^1.0.0",
+    "serverless-http": "^3.2.0"
   }
 }
