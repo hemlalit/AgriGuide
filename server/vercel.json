@@ -11,5 +11,11 @@
             "dest": "/",
             "methods": ["GET", "POST", "PATCH", "DELETE", "PUT", "OPTIONS"]
         }
+    ],
+    "rewrites": [
+        {
+            "source" : "/(.*)",
+            "destination": "/"
+        }
     ]
 }
