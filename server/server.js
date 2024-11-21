@@ -4,13 +4,14 @@ require('./config/passportConfig');
 const express = require('express');
 const mongoose = require('mongoose');
 const passport = require('passport')
+const cors = require('cors');
 
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 
 const app = express();
-
+app.use(cors)
 
 // Middleware
 app.use(express.json());
