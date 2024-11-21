@@ -55,9 +55,9 @@ app.use(async (req, res, next) => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes);
-app.use('/api/profile', profileRoutes);
-app.use('/api/expenses', expenseRoutes);
+app.use('/api/auth', authRoutes); // Updated to match original path
+app.use('/api/profile', profileRoutes); // Updated to match original path
+app.use('/api/expenses', expenseRoutes); // Updated to match original path
 
 // Error Handling
 app.use((err, req, res, next) => {
