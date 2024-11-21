@@ -6,12 +6,20 @@ const mongoose = require('mongoose');
 const passport = require('passport')
 const cors = require('cors');
 
+const corsConfig = {
+  origin: "*",
+  credential: "true",
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+}
+
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
 
 const app = express();
-app.use(cors)
+
+app.options("", cors(corsConfig))
+app.use(cors(corsConfig))
 
 // Middleware
 app.use(express.json());
