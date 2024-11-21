@@ -8,13 +8,9 @@ const passport = require('passport')
 const authRoutes = require('./routes/authRoutes');
 const profileRoutes = require('./routes/profileRoutes');
 const expenseRoutes = require('./routes/expenseRoutes');
-const router = express.Router();
 
 const app = express();
 
-router.get("/", (req, res) => {
-  res.send("App is running..");
-});
 
 // Middleware
 app.use(express.json());
@@ -35,5 +31,3 @@ mongoose.connect(process.env.MONGO_URI, {
     app.listen(5000, () => console.log('Server started on port 5000')); // Start Server
   })
   .catch((err) => console.log(err));
-
-
