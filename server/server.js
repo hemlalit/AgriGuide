@@ -13,9 +13,10 @@ const expenseRoutes = require('./routes/expenseRoutes');
 
 // Initialize Express app
 const app = express();
+const PORT = 5000; // Define the port
 
 // MongoDB Connection
-const uri = process.env.MONGO_URI || "mongodb+srv://onlyprogramming123:hemlalit15%40mongo@cluster0.fk6td3g.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const uri = process.env.MONGO_URI || "mongodb+srv://onlyprogramming123:hemlalit@cluster0.wzfwp.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
 const client = new MongoClient(uri, {
   serverApi: {
     version: ServerApiVersion.v1,
@@ -29,6 +30,7 @@ let isMongoConnected = false;
 async function connectMongoDB() {
   try {
     if (!isMongoConnected) {
+      console.log("Attempting to connect to MongoDB...");
       await client.connect();
       isMongoConnected = true;
       console.log("MongoDB successfully connected!");
@@ -55,9 +57,9 @@ app.use(async (req, res, next) => {
 });
 
 // Routes
-app.use('/api/auth', authRoutes); // Updated to match original path
-app.use('/api/profile', profileRoutes); // Updated to match original path
-app.use('/api/expenses', expenseRoutes); // Updated to match original path
+app.use('/auth', authRoutes);
+app.use('/profile', profileRoutes);
+app.use('/expenses', expenseRoutes);
 
 // Error Handling
 app.use((err, req, res, next) => {
@@ -70,4 +72,9 @@ app.use((req, res) => {
   res.status(404).json({ message: "Route not found" });
 });
 
-module.exports = app; // Export for serverless deployment
+// Start Server
+app.listen(PORT, () => {
+  console.log(`Server connected at http://localhost:${PORT}`);
+});
+
+module.exports = app;

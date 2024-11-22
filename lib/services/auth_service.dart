@@ -11,7 +11,7 @@ class AuthService {
       String name, String email, String phone, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/auth/register'),
+        Uri.parse('$baseUrl/api/auth/register'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"name": name, "email": email, "phone": phone, "password": password}),
       );
