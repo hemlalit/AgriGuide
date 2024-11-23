@@ -102,6 +102,3 @@ exports.instaLogin = async (req, res) => {
     res.status(400).json({ error: 'Invalid Instagram token' });
   }
 };
-
-
-

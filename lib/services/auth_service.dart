@@ -11,19 +11,21 @@ class AuthService {
       String name, String email, String phone, String password) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl/api/auth/register'),
+        Uri.parse('$baseUrl/auth/register'),
         headers: {"Content-Type": "application/json"},
-        body: jsonEncode({"name": name, "email": email, "phone": phone, "password": password}),
+        body: jsonEncode({
+          "name": name,
+          "email": email,
+          "phone": phone,
+          "password": password
+        }),
       );
       if (response.statusCode == 201) {
         return {'status': true, 'message': 'Registration successful'};
       } else {
         print('Error: ${response.body}');
         final responseData = jsonDecode(response.body);
-        return {
-          'status': false,
-          'message': responseData['error'] 
-        };
+        return {'status': false, 'message': responseData['error']};
       }
     } catch (e) {
       print(e.toString());
@@ -33,11 +35,12 @@ class AuthService {
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     try {
-      final response = await http.post(Uri.parse('$baseUrl/auth/login'),
-          headers: {"Content-Type": "application/json"},
-          body: jsonEncode({"email": email, "password": password}),
-          encoding: Encoding.getByName('utf-8'));
-
+      final response = await http.post(
+        Uri.parse('$baseUrl/auth/login'),
+        headers: {"Content-Type": "application/json"},
+        body: jsonEncode({"email": email, "password": password}),
+        encoding: Encoding.getByName('utf-8'),
+      );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         // print("Your auth token: $data['token']");
