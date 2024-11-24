@@ -2,6 +2,8 @@ import 'package:AgriGuide/utils/appColors.dart';
 import 'package:flutter/material.dart';
 
 class SettingsScreen extends StatefulWidget {
+  const SettingsScreen({super.key});
+
   @override
   _SettingsScreenState createState() => _SettingsScreenState();
 }
@@ -14,7 +16,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Settings'),
+        title: const Text('Settings'),
         backgroundColor: AppColors.primaryColor,
       ),
       body: Padding(
@@ -22,7 +24,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
         child: Column(
           children: [
             SwitchListTile(
-              title: Text('Enable Notifications'),
+              title: const Text('Enable Notifications'),
               value: notificationsEnabled,
               activeColor: AppColors.primaryColor,
               onChanged: (value) {
@@ -32,12 +34,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             ListTile(
-              title: Text('Language'),
+              title: const Text('Language'),
               subtitle: Text(language),
               onTap: () async {
                 final selectedLanguage = await showDialog<String>(
                   context: context,
-                  builder: (context) => LanguageSelectionDialog(),
+                  builder: (context) => const LanguageSelectionDialog(),
                 );
                 if (selectedLanguage != null) {
                   setState(() {
@@ -47,9 +49,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
               },
             ),
             ListTile(
-              title: Text('Theme Color'),
-              subtitle: Text('Choose theme color'),
-              trailing: Icon(Icons.color_lens, color: AppColors.primaryColor),
+              title: const Text('Theme Color'),
+              subtitle: const Text('Choose theme color'),
+              trailing:
+                  const Icon(Icons.color_lens, color: AppColors.primaryColor),
               onTap: () {
                 // Implement a color picker here
               },
@@ -60,7 +63,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 }
-
 
 class LanguageSelectionDialog extends StatelessWidget {
   const LanguageSelectionDialog({super.key});

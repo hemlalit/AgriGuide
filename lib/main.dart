@@ -1,9 +1,9 @@
 import 'package:AgriGuide/providers/news_provider.dart';
 import 'package:AgriGuide/providers/profile_provider.dart';
 import 'package:AgriGuide/providers/scheme_provider.dart';
-import 'package:AgriGuide/providers/weather_provider.dart';
 import 'package:AgriGuide/services/message_service.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
@@ -20,7 +20,6 @@ void main() {
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ExpenseProvider()),
         ChangeNotifierProvider(create: (_) => ProfileProvider()),
-        ChangeNotifierProvider(create: (_) => WeatherProvider()),
         ChangeNotifierProvider(create: (_) => NewsProvider()),
         ChangeNotifierProvider(create: (_) => SchemeProvider()),
       ],
@@ -29,13 +28,12 @@ void main() {
   );
 }
 
-
 class AgriGuideApp extends StatelessWidget {
   const AgriGuideApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return GetMaterialApp(
       title: 'AgriGuide',
       theme: ThemeData(
         textTheme: GoogleFonts.poppinsTextTheme(),

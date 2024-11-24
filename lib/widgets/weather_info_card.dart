@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 class WeatherInfoCard extends StatelessWidget {
   final Map<String, dynamic> weatherData;
 
-  WeatherInfoCard({required this.weatherData});
+  const WeatherInfoCard({super.key, required this.weatherData});
 
   @override
   Widget build(BuildContext context) {

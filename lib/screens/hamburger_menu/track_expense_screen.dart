@@ -8,7 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:AgriGuide/models/expense_model.dart';
 
 class TrackExpenseScreen extends StatefulWidget {
-  const TrackExpenseScreen({Key? key}) : super(key: key);
+  const TrackExpenseScreen({super.key});
 
   @override
   _TrackExpenseScreenState createState() => _TrackExpenseScreenState();
@@ -117,7 +117,7 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
     // print(_descriptionUpdateController.text+"***");
     if (_descriptionUpdateController.text.isEmpty) {
       _descriptionUpdateController.text = expense.description;
-    }else if(_amountUpdateController.text.isEmpty){
+    } else if (_amountUpdateController.text.isEmpty) {
       _amountUpdateController.text = expense.amount.toString();
     }
 

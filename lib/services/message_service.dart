@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 class MessageService {
-  static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey = GlobalKey<ScaffoldMessengerState>();
+  static final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+      GlobalKey<ScaffoldMessengerState>();
 
   static void showSnackBar(String message) {
     scaffoldMessengerKey.currentState?.showSnackBar(

@@ -3,10 +3,18 @@ import 'package:flutter/material.dart';
 
 class HelpScreen extends StatelessWidget {
   final List<Map<String, String>> faqs = [
-    {'question': 'How to use the app?', 'answer': 'You can refer to the guide on the Home screen.'},
-    {'question': 'How to track expenses?', 'answer': 'Go to the "Track Expense" section from the menu.'},
+    {
+      'question': 'How to use the app?',
+      'answer': 'You can refer to the guide on the Home screen.'
+    },
+    {
+      'question': 'How to track expenses?',
+      'answer': 'Go to the "Track Expense" section from the menu.'
+    },
     // Add more FAQs here
   ];
+
+  HelpScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -35,5 +43,3 @@ class HelpScreen extends StatelessWidget {
     );
   }
 }
-
-

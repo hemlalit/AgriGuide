@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
@@ -91,9 +93,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         Center(
                           child: CircleAvatar(
                             radius: 50,
-                            backgroundImage: NetworkImage(
-                                user.profileImageUrl ??
-                                    ''),
+                            backgroundImage:
+                                NetworkImage(user.profileImageUrl ?? ''),
                             backgroundColor: AppColors.accentColor,
                           ),
                         ),

@@ -1,5 +1,5 @@
 import 'package:AgriGuide/screens/crop_care_screen.dart';
-import 'package:AgriGuide/screens/feed_screen.dart';
+import 'package:AgriGuide/screens/feedScreen/feed_screen.dart';
 import 'package:AgriGuide/screens/marketplace_screen.dart';
 import 'package:AgriGuide/screens/notification_screen.dart';
 import 'package:AgriGuide/screens/weather_screen.dart';
@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import '../widgets/hamburger_menu.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -20,7 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeScreenContent(),
     const CropCareScreen(),
     const MarketplaceScreen(),
-    WeatherScreen(),
+    const WeatherScreen(),
     FeedScreen(),
   ];
 
@@ -93,7 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 class HomeScreenContent extends StatelessWidget {
-  HomeScreenContent({super.key});
+  const HomeScreenContent({super.key});
 
   @override
   Widget build(BuildContext context) {

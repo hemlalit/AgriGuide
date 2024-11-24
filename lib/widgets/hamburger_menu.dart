@@ -79,7 +79,7 @@ class _HamburgerMenuState extends State<HamburgerMenu> {
                 decoration: const BoxDecoration(color: Colors.green),
                 child: Column(
                   children: [
-                    CircleAvatar(
+                    const CircleAvatar(
                       // backgroundImage: NetworkImage(''),
                       radius: 30,
                     ),
@@ -167,7 +167,7 @@ class _HamburgerMenuState extends State<HamburgerMenu> {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TrackExpenseScreen(),
+                  builder: (context) => const TrackExpenseScreen(),
                 ),
               );
             },
@@ -198,40 +198,39 @@ class _HamburgerMenuState extends State<HamburgerMenu> {
             },
           ),
           ListTile(
-  leading: const CustomIcon(
-    icon: Icons.logout,
-    color: Colors.black,
-  ),
-  title: const Text('Logout'),
-  onTap: () {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Logout'),
-        content: const Text('Are you sure?'),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop(); // Close the dialog
-            },
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () {
-              auth.logout();
-              Navigator.of(context).pushNamedAndRemoveUntil(
-                '/login',
-                (route) => false,
+            leading: const CustomIcon(
+              icon: Icons.logout,
+              color: Colors.black,
+            ),
+            title: const Text('Logout'),
+            onTap: () {
+              showDialog(
+                context: context,
+                builder: (context) => AlertDialog(
+                  title: const Text('Logout'),
+                  content: const Text('Are you sure?'),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.of(context).pop(); // Close the dialog
+                      },
+                      child: const Text('Cancel'),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        auth.logout();
+                        Navigator.of(context).pushNamedAndRemoveUntil(
+                          '/login',
+                          (route) => false,
+                        );
+                      },
+                      child: const Text('Confirm'),
+                    ),
+                  ],
+                ),
               );
             },
-            child: const Text('Confirm'),
-          ),
-        ],
-      ),
-    );
-  },
-)
-
+          )
         ],
       ),
     );

@@ -102,7 +102,7 @@ class Dot extends StatelessWidget {
   final Animation<double> animation;
   final int index;
 
-  const Dot({required this.animation, required this.index});
+  const Dot({super.key, required this.animation, required this.index});
 
   @override
   Widget build(BuildContext context) {
@@ -117,7 +117,7 @@ class Dot extends StatelessWidget {
 }
 
 class DotWidget extends StatelessWidget {
-  const DotWidget();
+  const DotWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

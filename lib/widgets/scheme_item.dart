@@ -4,7 +4,7 @@ import 'package:AgriGuide/models/scheme_model.dart';
 class SchemeItem extends StatelessWidget {
   final Scheme scheme;
 
-  SchemeItem({required this.scheme});
+  const SchemeItem({super.key, required this.scheme});
 
   @override
   Widget build(BuildContext context) {
@@ -21,14 +21,20 @@ class SchemeItem extends StatelessWidget {
         children: [
           Text(
             scheme.title,
-            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.green[700]),
+            style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: Colors.green[700]),
           ),
           const SizedBox(height: 8),
-          Text('Eligibility: ${scheme.eligibility}', style: TextStyle(color: Colors.green[600])),
+          Text('Eligibility: ${scheme.eligibility}',
+              style: TextStyle(color: Colors.green[600])),
           const SizedBox(height: 8),
-          Text('Benefits: ${scheme.benefits}', style: TextStyle(color: Colors.green[600])),
+          Text('Benefits: ${scheme.benefits}',
+              style: TextStyle(color: Colors.green[600])),
           const SizedBox(height: 8),
-          Text('Details: ${scheme.details}', maxLines: 2, overflow: TextOverflow.ellipsis),
+          Text('Details: ${scheme.details}',
+              maxLines: 2, overflow: TextOverflow.ellipsis),
         ],
       ),
     );

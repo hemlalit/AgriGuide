@@ -19,11 +19,10 @@ class CustomTextField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
-      obscureText: isPassword,
-      validator: validator,
-      decoration: _inputDecoration(hint)
-    );
+        controller: controller,
+        obscureText: isPassword,
+        validator: validator,
+        decoration: _inputDecoration(hint));
   }
 
   InputDecoration _inputDecoration(String label) {
@@ -38,10 +37,11 @@ class CustomTextField extends StatelessWidget {
         ),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(30), // Maintain the rounded border when focused
+        borderRadius: BorderRadius.circular(
+            30), // Maintain the rounded border when focused
         borderSide: const BorderSide(
           color: Colors.black, // Color when field is focused
-          width: 1.2345 ,// Border width when focused
+          width: 1.2345, // Border width when focused
         ),
       ),
       errorBorder: OutlineInputBorder(
@@ -63,6 +63,3 @@ class CustomTextField extends StatelessWidget {
     );
   }
 }
-
-
-

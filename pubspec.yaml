@@ -45,8 +45,12 @@ dependencies:
   intl: ^0.19.0
   google_fonts: ^6.2.1
   location: ^7.0.1
-  geolocator: ^13.0.1
+  geolocator: ^13.0.2
   share_plus: ^10.1.1
+  url_launcher: ^6.3.1
+  geocoding: ^3.0.0
+  sleek_circular_slider: ^2.0.1
+  get: ^4.6.6
     
 dev_dependencies:
   flutter_test:
@@ -71,8 +75,9 @@ flutter:
   uses-material-design: true
 
   # To add assets to your application, add an assets section, like this:
-  # assets:
-  #   - images/a_dot_burr.jpeg
+  assets:
+    - assets/icons/
+    - assets/weather/
   #   - images/a_dot_ham.jpeg
 
   # An image asset can refer to one or more resolution-specific "variants", see

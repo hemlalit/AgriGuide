@@ -30,7 +30,7 @@ class InstagramAuthService {
 class InstagramLoginWebview extends StatefulWidget {
   final String authUrl;
 
-  InstagramLoginWebview({required this.authUrl});
+  const InstagramLoginWebview({super.key, required this.authUrl});
 
   @override
   _InstagramLoginWebviewState createState() => _InstagramLoginWebviewState();

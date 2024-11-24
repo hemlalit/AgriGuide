@@ -1,53 +1,52 @@
-import 'package:AgriGuide/services/location_service.dart';
-import 'package:AgriGuide/services/message_service.dart';
+import 'package:AgriGuide/controllers/weather_controller.dart';
+import 'package:AgriGuide/widgets/weather_widgets/current_weather.dart';
+import 'package:AgriGuide/widgets/weather_widgets/daily_weather.dart';
+import 'package:AgriGuide/widgets/weather_widgets/header.dart';
+import 'package:AgriGuide/widgets/weather_widgets/hourly_weather.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:AgriGuide/providers/weather_provider.dart';
-import 'package:AgriGuide/widgets/weather_info_card.dart';
+import 'package:get/get.dart';
 
 class WeatherScreen extends StatefulWidget {
+  const WeatherScreen({super.key});
+
   @override
-  _WeatherScreenState createState() => _WeatherScreenState();
+  State<WeatherScreen> createState() => _WeatherScreenState();
 }
 
 class _WeatherScreenState extends State<WeatherScreen> {
-  late LocationService _locationService;
-
-  @override
-  void initState() {
-    super.initState();
-    _locationService = LocationService();
-    _fetchWeather();
-  }
-
-  void _fetchWeather() async {
-    final locationData = await _locationService.getCurrentLocation();
-    if (locationData != null) {
-      await Provider.of<WeatherProvider>(context, listen: false)
-          .loadWeatherData(locationData.latitude, locationData.longitude);
-    } else {
-      MessageService.showSnackBar('Cannot get location now');
-    }
-  }
+  final WeatherController weatherController =
+      Get.put(WeatherController(), permanent: true);
 
   @override
   Widget build(BuildContext context) {
-    final weatherProvider = Provider.of<WeatherProvider>(context);
     return Scaffold(
-      body: Center(
-        child: weatherProvider.isLoading
-            ? const CircularProgressIndicator()
-            : weatherProvider.weatherData == null
-                ? const Text('No weather data available')
-                : AnimatedContainer(
-                    duration: const Duration(seconds: 1),
-                    curve: Curves.easeInOut,
-                    child: WeatherInfoCard(weatherData: weatherProvider.weatherData!),
+      body: SafeArea(
+        child: Obx(
+          () => weatherController.checkloading().isTrue
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : Center(
+                  child: ListView(
+                    scrollDirection: Axis.vertical,
+                    children: [
+                      const SizedBox(height: 20),
+                      const headerWidget(),
+                      CurrentWeather(
+                        weatherDataCurrent:
+                            weatherController.getData().getCurrentWeather(),
+                      ),
+                      const SizedBox(height: 20),
+                      HourlyDataWeather(
+                        weatherDataHourly: weatherController.getData().getHourlyWeather(),
+                      ),
+                      DailyDataForecast(
+                        weatherDataDaily: weatherController.getData().getDailyForecast(),
+                      ),
+                    ],
                   ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _fetchWeather,
-        child: const Icon(Icons.refresh),
+                ),
+        ),
       ),
     );
   }

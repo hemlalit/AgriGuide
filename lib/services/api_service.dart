@@ -47,6 +47,4 @@ class ApiService {
     );
     return response;
   }
-
-
 }
