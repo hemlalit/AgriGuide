@@ -38,10 +38,12 @@ class _WeatherScreenState extends State<WeatherScreen> {
                       ),
                       const SizedBox(height: 20),
                       HourlyDataWeather(
-                        weatherDataHourly: weatherController.getData().getHourlyWeather(),
+                        weatherDataHourly:
+                            weatherController.getData().getHourlyWeather(),
                       ),
                       DailyDataForecast(
-                        weatherDataDaily: weatherController.getData().getDailyForecast(),
+                        weatherDataDaily:
+                            weatherController.getData().getDailyForecast(),
                       ),
                     ],
                   ),

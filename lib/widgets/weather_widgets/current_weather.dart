@@ -100,7 +100,7 @@ class CurrentWeather extends StatelessWidget {
           children: [
             SizedBox(
               height: 20,
-              width: 60,
+              width: 70,
               child: Text(
                 "${weatherDataCurrent.current.windSpeed} km/h",
                 style: const TextStyle(fontSize: 12),

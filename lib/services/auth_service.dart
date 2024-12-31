@@ -9,6 +9,8 @@ class AuthService {
 
   Future<Map<String, dynamic>> register(
       String name, String email, String phone, String password) async {
+    // String username = name.replaceAll(' ', '').toLowerCase();
+    print("$name $email $phone");
     try {
       final response = await http.post(
         Uri.parse('$baseUrl/auth/register'),
@@ -21,6 +23,7 @@ class AuthService {
         }),
       );
       if (response.statusCode == 201) {
+        print(response.body);
         return {'status': true, 'message': 'Registration successful'};
       } else {
         print('Error: ${response.body}');
@@ -39,22 +42,22 @@ class AuthService {
         Uri.parse('$baseUrl/auth/login'),
         headers: {"Content-Type": "application/json"},
         body: jsonEncode({"email": email, "password": password}),
-        encoding: Encoding.getByName('utf-8'),
       );
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // print("Your auth token: $data['token']");
+        print(data);
         await storage.write(key: 'token', value: data['token']);
+        await storage.write(key: 'userData', value: jsonEncode(data['user']));
         return {'status': true, 'message': 'Login successful'};
       } else {
         final responseData = jsonDecode(response.body);
         return {
           'status': false,
-          'message': responseData['error'] ?? 'Login failed'
+          'message': responseData['message'] ?? 'Login failed'
         };
       }
     } catch (e) {
-      print('Exception: $e');
+      print('hii Exception: $e');
       return {'status': false, 'message': 'Error connecting to server'};
     }
   }
@@ -73,6 +76,11 @@ class AuthService {
 //   }
 
   Future<void> logout() async {
-    await storage.delete(key: 'token');
+    try {
+      await storage.delete(key: 'token'); // Clear the token
+      await storage.delete(key: 'userData'); // Clear the userData
+    } catch (e) {
+      print('Error logging out: $e');
+    }
   }
 }

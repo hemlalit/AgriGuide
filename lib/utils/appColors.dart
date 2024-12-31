@@ -15,4 +15,8 @@ class AppColors {
   static const textColorBlack = Color(0xff171717);
   static const firstGradientColor = Color(0xff408ADE);
   static const secondGradientColor = Color(0xff5286CD);
+
+// post colors
+  static const Color primaryPostColor = Colors.blue;
+  static const Color secondaryPostColor = Colors.grey;
 }

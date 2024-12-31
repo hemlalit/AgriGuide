@@ -1,13 +1,15 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser, googleLogin, facebookLogin, instaLogin } = require('../controllers/authController');
+const { registerUser, registerVendor, loginUser, loginVendor, googleLogin, facebookLogin, instaLogin } = require('../controllers/authController');
 const authenticateToken = require('../middlewares/authenticateToken');
 
 // Register
 router.post('/register', registerUser);
+router.post('/vendor/register', registerVendor);
 
 // Login
 router.post('/login', loginUser);
+router.post('/vendor/login', loginVendor);
 
 // other auth
 router.post('/google', googleLogin);

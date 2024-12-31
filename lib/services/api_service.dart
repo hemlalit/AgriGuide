@@ -1,3 +1,4 @@
+
 import 'package:AgriGuide/models/user_model.dart';
 import 'package:AgriGuide/utils/constants.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -5,10 +6,11 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class ApiService {
-  static Future<User> getUserProfile() async {
-    const storage = FlutterSecureStorage();
-    final token =
-        await storage.read(key: 'token'); // Use `await` to read the token
+  static const storage = FlutterSecureStorage();
+
+  static Future<Map<String, dynamic>> getUserProfile() async {
+    final String? token = await storage.read(key: 'token');
+
     final response = await http.get(
       Uri.parse('$baseUrl/profile'),
       headers: {
@@ -20,18 +22,46 @@ class ApiService {
     if (response.statusCode == 200) {
       try {
         final data = json.decode(response.body);
-        return User.fromJson(data);
+        return {
+          "user": User.fromJson(data),
+          "message": "Profile fetched succesfully"
+        };
       } catch (e) {
-        throw Exception('Failed to parse user profile');
+        return {'err': 'Failed to parse user profile'};
       }
     } else {
-      throw Exception('Failed to load user profile');
+      return {'err': 'Failed to load user profile'};
+    }
+  }
+
+  static Future<Map<String, dynamic>> getAnotherUserProfile(String id) async {
+    final String? token = await storage.read(key: 'token');
+
+    final response = await http.get(
+      Uri.parse('$baseUrl/profile/$id'),
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": "Bearer $token",
+      },
+    );
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      try {
+        final data = json.decode(response.body);
+        return {
+          "user": User.fromJson(data),
+          "message": "Profile fetched succesfully"
+        };
+      } catch (e) {
+        return {'err': 'Failed to parse user profile'};
+      }
+    } else {
+      return {'err': 'Failed to load user profile'};
     }
   }
 
   static Future<http.Response> updateUserProfile(User user) async {
-    const storage = FlutterSecureStorage();
-    final token = await storage.read(key: 'token');
+    final String? token = await storage.read(key: 'token');
     final response = await http.put(
       Uri.parse('$baseUrl/profile/update'),
       headers: {
@@ -40,11 +70,15 @@ class ApiService {
       },
       body: jsonEncode({
         'name': user.name,
+        'usernmae': user.username,
         'email': user.email,
         'phone': user.phone,
-        'profile_image_url': user.profileImageUrl,
+        'bio': user.bio,
+        'bannerImage': user.bannerImage,
+        'profileImage': user.profileImage,
       }),
     );
     return response;
   }
+
 }

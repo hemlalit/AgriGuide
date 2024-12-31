@@ -1,4 +1,6 @@
+import 'package:AgriGuide/localization/locales.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:provider/provider.dart';
 import 'package:AgriGuide/providers/news_provider.dart';
 
@@ -105,9 +107,9 @@ class _NewsTabState extends State<NewsTab> {
                                               onPressed: () {
                                                 // Navigate to detailed news
                                               },
-                                              child: const Text(
-                                                "Read More",
-                                                style: TextStyle(
+                                              child: Text(
+                                                LocaleData.readMore.getString(context),
+                                                style: const TextStyle(
                                                   color: Colors.blue,
                                                   fontWeight: FontWeight.bold,
                                                 ),

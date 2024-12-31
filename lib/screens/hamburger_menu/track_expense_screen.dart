@@ -1,8 +1,10 @@
-// track_expenses_screen.dart
+import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/providers/expense_provider.dart';
 import 'package:AgriGuide/services/message_service.dart';
 import 'package:AgriGuide/utils/appColors.dart';
+import 'package:AgriGuide/widgets/divider_line.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:AgriGuide/models/expense_model.dart';
@@ -23,10 +25,154 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
   @override
   void initState() {
     super.initState();
-    // Load expenses when the screen initializes
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(LocaleData.trackEx.getString(context)),
+        flexibleSpace: Container(
+          decoration: const BoxDecoration(
+            gradient: LinearGradient(
+              colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
+          ),
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Consumer<ExpenseProvider>(
+          builder: (context, expenseProvider, _) {
+            return expenseProvider.isLoading
+                ? const Center(
+                    child: CircularProgressIndicator(),
+                  )
+                : Column(
+                    children: [
+                      Card(
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        color: Colors.green[50],
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: Text(
+                            context.formatString(LocaleData.totalExpense.getString(context), ['₹${expenseProvider.totalExpense}']) ,
+                            style: const TextStyle(
+                              fontSize: 18,
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _descriptionController,
+                        decoration: InputDecoration(
+                          labelText: LocaleData.expenseDesc.getString(context),
+                          filled: true,
+                          fillColor: Colors.green[50],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      TextFormField(
+                        controller: _amountController,
+                        decoration: InputDecoration(
+                          labelText: LocaleData.amount.getString(context),
+                          filled: true,
+                          fillColor: Colors.green[50],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        keyboardType: TextInputType.number,
+                      ),
+                      const SizedBox(height: 10),
+                      ElevatedButton(
+                        onPressed: () => _addExpense(context),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.primaryColor,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 16.0),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8.0),
+                          child: Text(LocaleData.addExpense.getString(context)),
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      DividerLine().horizontalDividerLine(context),
+                      Expanded(
+                        child: ListView.builder(
+                          itemCount: expenseProvider.expenses.length,
+                          itemBuilder: (context, index) {
+                            final Expense expense =
+                                expenseProvider.expenses[index];
+                            return Card(
+                              elevation: 2,
+                              margin: const EdgeInsets.symmetric(vertical: 5),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              child: ListTile(
+                                title: Text(expense.description),
+                                subtitle: Text(
+                                  DateFormat('MMM d, yyyy hh:mm')
+                                      .format(expense.date),
+                                ),
+                                trailing: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text('₹${expense.amount}'),
+                                    IconButton(
+                                      icon: const Icon(Icons.edit),
+                                      color: Colors.green,
+                                      onPressed: () {
+                                        _showUpdateDialog(context, expense);
+                                      },
+                                    ),
+                                    const VerticalDivider(
+                                      color: Colors.grey,
+                                      thickness: 1,
+                                      indent: 10,
+                                      endIndent: 10,
+                                    ),
+                                    IconButton(
+                                      icon: const Icon(Icons.delete),
+                                      color: Colors.red,
+                                      onPressed: () {
+                                        _deleteExpense(context, expense);
+                                      },
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  );
+          },
+        ),
+      ),
+    );
   }
 
   void _addExpense(BuildContext context) {
@@ -39,7 +185,7 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
       _descriptionController.clear();
       _amountController.clear();
     } else {
-      MessageService.showSnackBar('fields are empty');
+      MessageService.showSnackBar(LocaleData.fielsAreEmpty.getString(context));
     }
   }
 
@@ -48,16 +194,16 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Are you sure? '),
+          title: Text(LocaleData.areYouSure.getString(context)),
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(LocaleData.cancel.getString(context)),
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text('Yes'),
+              child: Text(LocaleData.yes.getString(context)),
               onPressed: () {
                 Provider.of<ExpenseProvider>(context, listen: false)
                     .deleteExpense(expense.id);
@@ -71,28 +217,31 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
   }
 
   void _showUpdateDialog(BuildContext context, Expense expense) {
+    _descriptionUpdateController.text = expense.description;
+    _amountUpdateController.text = expense.amount.toString();
+
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text('Update Expense'),
+          title: Text(LocaleData.updateExpense.getString(context)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _descriptionUpdateController,
-                decoration: const InputDecoration(labelText: 'New Description'),
+                decoration: InputDecoration(labelText: LocaleData.newDesc.getString(context)),
               ),
               TextField(
                 controller: _amountUpdateController,
-                decoration: const InputDecoration(labelText: 'New Amount'),
+                decoration: InputDecoration(labelText: LocaleData.newAmt.getString(context)),
                 keyboardType: TextInputType.number,
               ),
             ],
           ),
           actions: [
             TextButton(
-              child: const Text('Cancel'),
+              child: Text(LocaleData.cancel.getString(context)),
               onPressed: () {
                 _descriptionUpdateController.clear();
                 _amountUpdateController.clear();
@@ -100,7 +249,7 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
               },
             ),
             TextButton(
-              child: const Text('Update'),
+              child: Text(LocaleData.update.getString(context)),
               onPressed: () {
                 _updateExpense(context, expense);
                 Navigator.of(context).pop();
@@ -113,11 +262,10 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
   }
 
   void _updateExpense(BuildContext context, Expense expense) {
-    // print(_descriptionController.text+"***");
-    // print(_descriptionUpdateController.text+"***");
     if (_descriptionUpdateController.text.isEmpty) {
       _descriptionUpdateController.text = expense.description;
-    } else if (_amountUpdateController.text.isEmpty) {
+    }
+    if (_amountUpdateController.text.isEmpty) {
       _amountUpdateController.text = expense.amount.toString();
     }
 
@@ -129,106 +277,7 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
       _descriptionUpdateController.clear();
       _amountUpdateController.clear();
     } else {
-      MessageService.showSnackBar('Fields are empty');
+      MessageService.showSnackBar(LocaleData.fielsAreEmpty.getString(context));
     }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Track Expense'),
-        backgroundColor: AppColors.primaryColor,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Consumer<ExpenseProvider>(
-          builder: (context, expenseProvider, _) {
-            return Column(
-              children: [
-                Text(
-                  'Total Expense: ₹${expenseProvider.totalExpense}',
-                  style: const TextStyle(
-                    fontSize: 20,
-                    color: AppColors.textColor,
-                  ),
-                ),
-                const SizedBox(height: 10),
-                TextFormField(
-                  controller: _descriptionController,
-                  decoration: const InputDecoration(
-                    labelText: 'Expense Description',
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                ),
-                TextFormField(
-                  controller: _amountController,
-                  decoration: const InputDecoration(
-                    labelText: 'Amount',
-                    filled: true,
-                    fillColor: Colors.white,
-                  ),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: () => _addExpense(context),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryColor,
-                    foregroundColor: AppColors.textColor,
-                  ),
-                  child: const Text('Add Expense'),
-                ),
-                Expanded(
-                  child: ListView.builder(
-                    itemCount: expenseProvider.expenses.length,
-                    itemBuilder: (context, index) {
-                      final Expense expense = expenseProvider.expenses[index];
-                      return Card(
-                          color: AppColors.backgroundColor,
-                          margin: const EdgeInsets.symmetric(vertical: 5),
-                          child: ListTile(
-                            title: Text(expense.description),
-                            subtitle: Text(
-                              DateFormat('MMM d, yyyy hh:mm')
-                                  .format(expense.date),
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text('₹${expense.amount}'),
-                                IconButton(
-                                  icon: const Icon(Icons.edit),
-                                  color: Colors.green,
-                                  onPressed: () {
-                                    _showUpdateDialog(context, expense);
-                                  },
-                                ),
-                                const VerticalDivider(
-                                  color: Colors.grey,
-                                  thickness: 1,
-                                  indent: 10,
-                                  endIndent: 10,
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.delete),
-                                  color: Colors.red,
-                                  onPressed: () {
-                                    _deleteExpense(context, expense);
-                                  },
-                                ),
-                              ],
-                            ),
-                          ));
-                    },
-                  ),
-                ),
-              ],
-            );
-          },
-        ),
-      ),
-    );
   }
 }

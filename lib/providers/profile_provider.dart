@@ -1,13 +1,13 @@
 import 'dart:convert';
+
+import 'package:AgriGuide/utils/read_user_data.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
-enum AuthStatus { loading, success, error }
+enum AuthStatus { loading, success, error, fetched }
 
 class ProfileProvider with ChangeNotifier {
-  final FlutterSecureStorage _storage = const FlutterSecureStorage();
   AuthStatus _status = AuthStatus.success;
   User? _user;
   String _errorMessage = '';
@@ -21,35 +21,66 @@ class ProfileProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> fetchUserProfile() async {
+  Future<String> fetchUserProfile(BuildContext context) async {
     _setStatus(AuthStatus.loading);
     _errorMessage = ''; // Clear previous errors
     try {
-      _user = await ApiService.getUserProfile();
-      if (_user != null) {
-        await _storage.write(
-          key: 'userData',
-          value: jsonEncode(_user!.toJson()),
-        );
-      }
-      _setStatus(AuthStatus.success);
+      Map<String, dynamic> data = await ApiService.getUserProfile();
+      print(data['user']);
+      _user = data['user'];
+      print(_user);
+
+      // Update the user data in secure storage
+      String userData = jsonEncode(_user!.toJson());
+      await updateUserData(context, 'userData', userData);
+
+      _setStatus(AuthStatus.fetched);
+      print(data['message']);
+      return data['message'];
     } catch (error) {
       _errorMessage = '$error';
+      print(_errorMessage);
       _setStatus(AuthStatus.error);
+      return '';
     }
   }
 
-  Future<void> updateUserProfile(User updatedUser) async {
+  Future<String> fetchAnotherUserProfile(BuildContext context, String anotherUsersId) async {
+    _setStatus(AuthStatus.loading);
+    _errorMessage = ''; // Clear previous errors
+    try {
+      Map<String, dynamic> data = await ApiService.getAnotherUserProfile(anotherUsersId);
+      print(data['user']);
+      _user = data['user'];
+      print(_user);
+
+      // Update the user data in secure storage
+      String userData = jsonEncode(_user!.toJson());
+      await updateUserData(context, 'userData', userData);
+
+      _setStatus(AuthStatus.fetched);
+      print(data['message']);
+      return data['message'];
+    } catch (error) {
+      _errorMessage = '$error';
+      print(_errorMessage);
+      _setStatus(AuthStatus.error);
+      return '';
+    }
+  }
+
+  Future<void> updateUserProfile(BuildContext context, User updatedUser) async {
     _setStatus(AuthStatus.loading);
     _errorMessage = ''; // Clear previous errors
     try {
       final response = await ApiService.updateUserProfile(updatedUser);
       if (response.statusCode == 200) {
         _user = updatedUser;
-        await _storage.write(
-          key: 'userData',
-          value: jsonEncode(_user!.toJson()),
-        );
+        
+        // Update the user data in secure storage
+        String userData = jsonEncode(_user!.toJson());
+        await updateUserData(context, 'userData', userData);
+
         _setStatus(AuthStatus.success);
       } else {
         _errorMessage = 'Failed to update user profile';

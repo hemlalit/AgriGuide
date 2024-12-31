@@ -8,7 +8,6 @@ exports.addExpense = async (req, res) => {
       userId: req.userId,
       description,
       amount,
-      // date: req.body.date || Date.now(),
     });
     await newExpense.save();
     res.status(201).json(newExpense);

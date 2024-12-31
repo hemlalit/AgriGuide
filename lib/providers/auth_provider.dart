@@ -49,16 +49,19 @@ class AuthProvider with ChangeNotifier {
   Future<void> login(String email, String password) async {
     _setStatus(AuthStatus.loading);
     notifyListeners();
+
     final response = await _authService.login(email, password);
-    _isLoading = false;
+    _isLoading = true;
 
     if (response['status']) {
       _message = response['message'];
       _isAuthenticated = true;
+      _isLoading = false;
       notifyListeners();
     } else {
       _errorMessage = response['message'];
       _isAuthenticated = false;
+      _isLoading = false;
       notifyListeners();
     }
   }
@@ -147,8 +150,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout() async {
     _setStatus(AuthStatus.loading);
+    _isAuthenticated = true;
     await _authService.logout();
-    await _storage.delete(key: 'token'); // Clear the token
     _isAuthenticated = false;
     notifyListeners();
   }

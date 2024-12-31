@@ -1,9 +1,9 @@
-import 'package:AgriGuide/providers/auth_provider.dart';
-import 'package:AgriGuide/widgets/custom_widgets/custom_snackbar.dart';
-import 'package:AgriGuide/widgets/custom_widgets/custom_textfield.dart';
-import 'package:AgriGuide/widgets/social_icons.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../widgets/custom_widgets/custom_snackbar.dart';
+import '../widgets/custom_widgets/custom_textfield.dart';
+import '../widgets/social_icons.dart';
 import 'login_screen.dart';
 import '../utils/validators.dart';
 
@@ -29,11 +29,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
       backgroundColor: Colors.white,
       body: Stack(
         children: [
-          // Background gradient
+          // Gradient Background
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.green[700]!, Colors.green[400]!],
+                colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -48,36 +48,49 @@ class _RegisterScreenState extends State<RegisterScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      // App Logo or Icon
+                      Image.asset(
+                        'assets/icons/app_logo1_wn.png',
+                        height: 150,
+                      ),
                       const Text(
-                        'Register',
+                        'Create Your Account',
                         style: TextStyle(
-                          fontSize: 32,
+                          fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
                         ),
                       ),
                       const SizedBox(height: 40),
+
+                      // Name TextField
                       CustomTextField(
                         icon: Icons.person,
                         hint: "Full Name",
                         controller: _nameController,
                         validator: null,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
+
+                      // Email TextField
                       CustomTextField(
                         icon: Icons.email,
                         hint: "Email",
                         controller: _emailController,
                         validator: Validators.validateEmail,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
+
+                      // Phone TextField
                       CustomTextField(
-                        icon: Icons.email,
-                        hint: "Phone",
+                        icon: Icons.phone,
+                        hint: "Phone Number",
                         controller: _phoneController,
-                        validator: null,
+                        validator: Validators.validatePhone,
                       ),
-                      const SizedBox(height: 10),
+                      const SizedBox(height: 15),
+
+                      // Password TextField
                       CustomTextField(
                         icon: Icons.lock,
                         hint: "Password",
@@ -86,6 +99,8 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         validator: Validators.validatePassword,
                       ),
                       const SizedBox(height: 40),
+
+                      // Register Button
                       ElevatedButton(
                         onPressed: () async {
                           if (_formKey.currentState!.validate()) {
@@ -97,7 +112,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             );
 
                             if (isRegistered) {
-                              // Show success SnackBar
                               ScaffoldMessenger.of(context).showSnackBar(
                                 CustomSnackbar.show(context, auth.message),
                               );
@@ -108,7 +122,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                     builder: (context) => const LoginScreen()),
                               );
                             } else {
-                              // Show failure SnackBar
                               ScaffoldMessenger.of(context).showSnackBar(
                                 CustomSnackbar.show(context, auth.errorMessage),
                               );
@@ -117,24 +130,25 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         },
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(
-                            vertical: 15,
-                            horizontal: 80,
-                          ),
+                              vertical: 15, horizontal: 80),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
                           ),
                           backgroundColor: Colors.white,
                           elevation: 5,
                         ),
-                        child: Text(
-                          'Register',
+                        child: const Text(
+                          'Sign Up',
                           style: TextStyle(
-                            color: Colors.green[700],
+                            color: Color(0xFF56ab2f),
                             fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                       const SizedBox(height: 20),
+
+                      // Already Have Account
                       GestureDetector(
                         onTap: () {
                           Navigator.of(context).push(
@@ -142,10 +156,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                                 builder: (context) => const LoginScreen()),
                           );
                         },
-                        child: const Text('Already have an account? Login',
-                            style: TextStyle(color: Colors.white)),
+                        child: RichText(
+                          text: const TextSpan(
+                            text: 'Already have an account? ',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 16,
+                            ),
+                            children: [
+                              TextSpan(
+                                text: 'Login',
+                                style: TextStyle(
+                                  color: Colors.blue,
+                                  fontWeight: FontWeight.w500,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 30),
+
+                      // Social Login Buttons
                       const SocialLoginButtons(),
                     ],
                   ),

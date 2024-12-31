@@ -48,7 +48,7 @@ class HourlyDataWeather extends StatelessWidget {
                   margin: const EdgeInsets.only(left: 20, right: 10),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
-                    boxShadow:[
+                    boxShadow: [
                       BoxShadow(
                         offset: const Offset(0.5, 0),
                         blurRadius: 30,

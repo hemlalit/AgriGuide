@@ -1,167 +1,408 @@
-import 'package:AgriGuide/models/user_model.dart';
-import 'package:AgriGuide/providers/profile_provider.dart';
-import 'package:AgriGuide/utils/appColors.dart';
+import 'dart:convert';
+import 'package:AgriGuide/localization/locales.dart';
+import 'package:AgriGuide/providers/post_provider.dart';
+import 'package:AgriGuide/screens/hamburger_menu/edit_profile_screen.dart';
+import 'package:AgriGuide/utils/constants.dart';
+import 'package:AgriGuide/utils/helper_functions.dart';
+import 'package:AgriGuide/utils/read_user_data.dart';
+import 'package:AgriGuide/widgets/divider_line.dart';
+import 'package:AgriGuide/widgets/post_widgets/post_card.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:provider/provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final String id;
+  final bool isAnotherUser;
+
+  const ProfileScreen({
+    super.key,
+    required this.id,
+    required this.isAnotherUser,
+  });
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  bool _isEditing = false;
-  late TextEditingController _nameController;
-  late TextEditingController _emailController;
-  late TextEditingController _phoneController;
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
+  Map<String, dynamic>? userData;
+  String? userId;
+
+  Future<void> fetchUser() async {
+    final user = await storage.read(key: 'userData');
+    print(user);
+
+    if (user != null) {
+      final Map<String, dynamic> userData = jsonDecode(user);
+      setState(() {
+        userId = userData['_id'];
+      });
+    } else {
+      print('No user data found');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
-    _nameController = TextEditingController();
-    _emailController = TextEditingController();
-    _phoneController = TextEditingController();
-    // Fetch user profile data when screen initializes
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<ProfileProvider>(context, listen: false).fetchUserProfile();
-    });
+    fetchUser();
+    _tabController = TabController(length: 4, vsync: this);
   }
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _phoneController.dispose();
+    _tabController.dispose();
+    userData = null; // Clear the userData
     super.dispose();
+  }
+
+  void _navigateBack(BuildContext context) {
+    Navigator.pop(context, true);
   }
 
   @override
   Widget build(BuildContext context) {
-    final profileProvider = Provider.of<ProfileProvider>(context);
-    final user = profileProvider.user;
-
-    if (user != null) {
-      // Update controllers with user data when loaded
-      _nameController.text = user.name;
-      _emailController.text = user.email;
-      _phoneController.text = user.phone;
-    }
-
     return Scaffold(
-      appBar: AppBar(
-        title:
-            const Text('Profile', style: TextStyle(color: AppColors.iconColor)),
-        backgroundColor: AppColors.primaryColor,
-        actions: [
-          IconButton(
-            icon: Icon(_isEditing ? Icons.check : Icons.edit,
-                color: AppColors.iconColor),
-            onPressed: () {
-              if (_isEditing && user != null) {
-                final updatedUser = User(
-                  name: _nameController.text,
-                  email: _emailController.text,
-                  phone: _phoneController.text,
-                  profileImageUrl: user.profileImageUrl,
-                );
-                profileProvider.updateUserProfile(updatedUser);
-              }
-              setState(() {
-                _isEditing = !_isEditing;
-              });
-            },
-          ),
-        ],
-      ),
-      body: profileProvider.status == AuthStatus.loading
-          ? const Center(child: CircularProgressIndicator())
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: user == null
-                  ? Center(
-                      child: Text(
-                        profileProvider.errorMessage.isNotEmpty
-                            ? profileProvider.errorMessage
-                            : 'User data not found',
-                      ),
-                    )
-                  : Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Center(
-                          child: CircleAvatar(
-                            radius: 50,
-                            backgroundImage:
-                                NetworkImage(user.profileImageUrl ?? ''),
-                            backgroundColor: AppColors.accentColor,
-                          ),
-                        ),
-                        const SizedBox(height: 20),
-                        _buildTextField('Name', _nameController, _isEditing),
-                        _buildTextField('Email', _emailController, _isEditing),
-                        _buildTextField('Phone', _phoneController, _isEditing),
-                        const SizedBox(height: 20),
-                        if (_isEditing)
-                          ElevatedButton(
-                            onPressed: () {
-                              setState(() {
-                                _isEditing = false;
-                              });
-                              // Update profile when 'Save Changes' is pressed
-                              final updatedUser = User(
-                                name: _nameController.text,
-                                email: _emailController.text,
-                                phone: _phoneController.text,
-                                profileImageUrl: user.profileImageUrl,
-                              );
-                              profileProvider.updateUserProfile(updatedUser);
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryColor,
-                              foregroundColor: AppColors.iconColor,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(180),
+        child: Stack(
+          children: [
+            // Background Banner
+            Container(
+              height: 150,
+              decoration: BoxDecoration(
+                color: Colors.green[700],
+                image: const DecorationImage(
+                  image: NetworkImage(
+                      'https://via.placeholder.com/500x200.png?text=Banner+Image'),
+                  fit: BoxFit.cover,
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              right: 16,
+              child: widget.isAnotherUser
+                  ? Container()
+                  : IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.white),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => EditProfileScreen(
+                              id: widget.id,
                             ),
-                            child: const Text('Save Changes'),
                           ),
-                      ],
+                        );
+                      },
                     ),
             ),
+            Positioned(
+              top: 40,
+              left: 16,
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                onPressed: () => _navigateBack(context),
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 16.0),
+        child: FutureBuilder<Map<String, dynamic>?>(
+          future: widget.isAnotherUser
+              ? readAnotherUserData(context, widget.id)
+              : readUserData(context),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Center(child: CircularProgressIndicator());
+            } else if (snapshot.hasError) {
+              return Center(child: Text('Error: ${snapshot.error}'));
+            } else if (!snapshot.hasData || snapshot.data == null) {
+              return const Center(child: Text('No user data available.'));
+            }
+
+            userData = snapshot.data;
+
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Profile Information Section
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Profile Avatar
+                      CircleAvatar(
+                        radius: 40,
+                        backgroundColor: Colors.white,
+                        child: CircleAvatar(
+                          radius: 38,
+                          backgroundImage: NetworkImage(
+                            userData?['profileImage'] ??
+                                'https://via.placeholder.com/150.png?text=Profile+Image',
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 13),
+                        child: Row(
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  userData?['name'] ?? 'Unknown', // User name
+                                  style: Theme.of(context)
+                                      .textTheme
+                                      .titleLarge!
+                                      .copyWith(
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                ),
+                                Text(
+                                  '@${userData?['username'] ?? 'unknown'}', // Username
+                                  style: Theme.of(context).textTheme.bodyMedium,
+                                ),
+                              ],
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 13),
+                              child: userData?['_id'] != widget.id
+                                  ? ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green,
+                                        foregroundColor: Colors.white,
+                                        minimumSize: const Size(60, 30),
+                                      ),
+                                      onPressed: () {},
+                                      child: Text(
+                                        LocaleData.follow.getString(context),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(left: 30, top: 30),
+                  child: Text(
+                    "${userData?['bio']}",
+                  ),
+                ),
+                // Followers and Following Row
+                Padding(
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      _buildInfoColumn(LocaleData.followers.getString(context),
+                          '${userData?['followers']?.length ?? 0}'),
+                      DividerLine().verticalDividerLine(context),
+                      _buildInfoColumn(LocaleData.following.getString(context),
+                          '${userData?['following']?.length ?? 0}'),
+                    ],
+                  ),
+                ),
+                // TabBar Section
+                TabBar(
+                  controller: _tabController,
+                  labelColor: Colors.green[700],
+                  unselectedLabelColor: Colors.grey,
+                  indicatorColor: Colors.green[700],
+                  tabs: [
+                    Tab(text: LocaleData.posts.getString(context)),
+                    Tab(text: LocaleData.likes.getString(context)),
+                    Tab(text: LocaleData.rePosts.getString(context)),
+                    Tab(text: LocaleData.comments.getString(context)),
+                  ],
+                ),
+                // TabBarView Section
+                Expanded(
+                  child: TabBarView(
+                    controller: _tabController,
+                    children: [
+                      _buildPostList("Posts"),
+                      _buildLikesList("Likes"),
+                      _buildRePostsList("Reposts"),
+                      _buildCommentsPostList("Comments"),
+                    ],
+                  ),
+                ),
+              ],
+            );
+          },
+        ),
+      ),
     );
   }
 
-  Widget _buildTextField(
-      String label, TextEditingController? controller, bool isEditable) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8.0),
-      child: TextField(
-        controller: controller,
-        enabled: isEditable,
-        style: const TextStyle(fontSize: 18, color: AppColors.textColor),
-        decoration: InputDecoration(
-          labelText: label,
-          labelStyle: const TextStyle(
-              color: AppColors.primaryColor, fontWeight: FontWeight.bold),
-          filled: true,
-          fillColor: isEditable ? Colors.white : AppColors.backgroundColor,
-          enabledBorder: OutlineInputBorder(
-            borderSide: const BorderSide(color: AppColors.primaryColor),
-            borderRadius: BorderRadius.circular(10),
+  Widget _buildInfoColumn(String title, String value) {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
           ),
-          focusedBorder: OutlineInputBorder(
-            borderSide:
-                const BorderSide(color: AppColors.accentColor, width: 2),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          disabledBorder: OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.grey.shade400),
-            borderRadius: BorderRadius.circular(10),
-          ),
-          suffixIcon: isEditable
-              ? const Icon(Icons.edit, color: AppColors.primaryColor)
-              : null,
         ),
-      ),
+        const SizedBox(height: 4),
+        Text(
+          title,
+          style: const TextStyle(
+            color: Colors.grey,
+            fontSize: 14,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildPostList(String title) {
+    final tweetProvider = Provider.of<TweetProvider>(context);
+
+    return ListView.builder(
+      padding: globalPadding,
+      itemCount: tweetProvider.tweets.length,
+      itemBuilder: (context, index) {
+        final tweet = tweetProvider.tweets[index];
+        if (tweet.author!.id == widget.id) {
+          return TweetCard(
+            id: tweet.id,
+            authorId: tweet.author!.id,
+            isLiked: tweet.likes!.contains(widget.id),
+            isNavigate: false,
+            authorName: tweet.author?.name ?? 'Unknown',
+            username: tweet.author?.username ?? 'Unknown',
+            content: tweet.content,
+            timestamp: formatTimestamp(context, tweet.createdAt ?? DateTime.now()),
+            profileImage: tweet.author?.profileImage ?? '',
+            initialLikeCount: tweet.likes?.length,
+            initialCommCount: tweet.comments?.length,
+            initialRetweetCount: tweet.retweetCount,
+            initialHasRetweeted: tweet.retweetedBy?.contains(tweet.author?.id),
+          );
+        } else {
+          return Container(); // Default return value for tweets not matching the condition
+        }
+      },
+    );
+  }
+
+  Widget _buildCommentsPostList(String title) {
+  final tweetProvider = Provider.of<TweetProvider>(context);
+
+  return ListView.builder(
+    padding: globalPadding,
+    itemCount: tweetProvider.tweets.length,
+    itemBuilder: (context, index) {
+      final tweet = tweetProvider.tweets[index];
+      print(tweet.comments != null);
+      if (tweet.comments != null && tweet.comments!.isNotEmpty) {
+        for (var comment in tweet.comments!) {
+          if (comment.commentedBy!.id == widget.id) {
+            print(userId);
+            return TweetCard(
+              id: tweet.id,
+              authorId: tweet.author!.id,
+              isLiked: tweet.likes!.contains(widget.id),
+              isNavigate: false,
+              authorName: tweet.author?.name ?? 'Unknown',
+              username: tweet.author?.username ?? 'Unknown',
+              content: tweet.content,
+              timestamp: formatTimestamp(context, tweet.createdAt ?? DateTime.now()),
+              profileImage: tweet.author?.profileImage ?? '',
+              initialLikeCount: tweet.likes?.length,
+              initialCommCount: tweet.comments?.length,
+              initialRetweetCount: tweet.retweetCount,
+              initialHasRetweeted: tweet.retweetedBy?.contains(tweet.author?.id),
+            );
+          }
+        }
+      }
+      return Container(); // Default return value for tweets not matching the condition
+    },
+  );
+}
+
+
+  Widget _buildRePostsList(String title) {
+    final tweetProvider = Provider.of<TweetProvider>(context);
+
+    return ListView.builder(
+      padding: globalPadding,
+      itemCount: tweetProvider.tweets.length,
+      itemBuilder: (context, index) {
+        final tweet = tweetProvider.tweets[index];
+        if (tweet.retweetedBy!.contains(widget.id) ) {
+          return TweetCard(
+            id: tweet.id,
+            authorId: tweet.author!.id,
+            isLiked: tweet.likes!.contains(widget.id),
+            isNavigate: false,
+            authorName: tweet.author?.name ?? 'Unknown',
+            username: tweet.author?.username ?? 'Unknown',
+            content: tweet.content,
+            timestamp: formatTimestamp(context, tweet.createdAt ?? DateTime.now()),
+            profileImage: tweet.author?.profileImage ?? '',
+            initialLikeCount: tweet.likes?.length,
+            initialCommCount: tweet.comments?.length,
+            initialRetweetCount: tweet.retweetCount,
+            initialHasRetweeted: tweet.retweetedBy?.contains(tweet.author?.id),
+          );
+        } else {
+          return Container(); // Default return value for tweets not matching the condition
+        }
+      },
+    );
+  }
+
+  Widget _buildLikesList(String title) {
+    final tweetProvider = Provider.of<TweetProvider>(context);
+
+    return ListView.builder(
+      padding: globalPadding,
+      itemCount: tweetProvider.tweets.length,
+      itemBuilder: (context, index) {
+        final tweet = tweetProvider.tweets[index];
+        if (tweet.likes!.contains(widget.id)) {
+          return TweetCard(
+            id: tweet.id,
+            authorId: tweet.author!.id,
+            isLiked: tweet.likes!.contains(userId),
+            isNavigate: false,
+            authorName: tweet.author?.name ?? 'Unknown',
+            username: tweet.author?.username ?? 'Unknown',
+            content: tweet.content,
+            timestamp: formatTimestamp(context, tweet.createdAt ?? DateTime.now()),
+            profileImage: tweet.author?.profileImage ?? '',
+            initialLikeCount: tweet.likes?.length,
+            initialCommCount: tweet.comments?.length,
+            initialRetweetCount: tweet.retweetCount,
+            initialHasRetweeted: tweet.retweetedBy?.contains(tweet.author?.id),
+          );
+        } else {
+          return Container(); // Default return value for tweets not matching the condition
+        }
+      },
     );
   }
 }

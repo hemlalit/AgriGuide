@@ -1,37 +1,69 @@
-const User = require('../models/userModel');
-const bcrypt = require('bcryptjs');
 const axios = require('axios');
-const jwt = require('jsonwebtoken');
+const User = require("../models/profileModel");
+const Vendor = require("../models/vendorModel");
+const jwt = require("jsonwebtoken");
+const bcrypt = require("bcryptjs");
 
-// Register User
 exports.registerUser = async (req, res) => {
   const { name, email, phone, password } = req.body;
+
   try {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = new User({ name, email, phone, password: hashedPassword });
-    await newUser.save();
-    res.status(201).json({ message: 'User registered successfully' });
+    const userName = name.toLowerCase().replace(/\s+/g, '');
+    await User.create({ name, email, phone, password, "username": userName });
+    res.status(201).json({ message: "User registered successfully!" });
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ error: err.message });
   }
 };
 
-// Login User
+exports.registerVendor = async (req, res) => {
+  const { name, email, phone, password } = req.body;
+
+  try {
+    const userName = name.toLowerCase().replace(/\s+/g, '');
+    await Vendor.create({ name, email, phone, password, "username": userName });
+    res.status(201).json({ message: "User registered successfully!" });
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+};
+
 exports.loginUser = async (req, res) => {
   const { email, password } = req.body;
+
   try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: 'User not found' });
+    const user = await User.findOne({ email })
+    if (!user) return res.status(404).json({ message: "User not found" });
+    console.log(user);
 
     const isMatch = await bcrypt.compare(password, user.password);
-    if (!isMatch) return res.status(400).json({ message: 'Invalid credentials' });
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
-    res.json({ token, userId: user._id });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    res.json({ token, user });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ error: err.message });
   }
 };
+
+exports.loginVendor = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    const vendor = await Vendor.findOne({ email });
+    if (!vendor) return res.status(404).json({ message: "User not found" });
+    console.log(vendor);
+
+    const isMatch = await bcrypt.compare(password, vendor.password);
+    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+
+    const token = jwt.sign({ id: vendor._id }, process.env.JWT_SECRET, { expiresIn: "1d" });
+    res.json({ token, vendor });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 
 // Google Login
 exports.googleLogin = async (req, res) => {

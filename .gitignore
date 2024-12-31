@@ -45,6 +45,7 @@ app.*.map.json
 #node Modules
 /node_modules
 /server/node_modules
+/venderside_agriguide
 
 .env 
 .vercel

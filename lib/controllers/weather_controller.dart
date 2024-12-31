@@ -15,7 +15,7 @@ class WeatherController extends GetxController {
 
   final weatherData = WeatherData().obs;
 
-  WeatherData getData(){
+  WeatherData getData() {
     return weatherData.value;
   }
 
@@ -23,7 +23,7 @@ class WeatherController extends GetxController {
   void onInit() {
     if (_isLoading.isTrue) {
       getLocation();
-    }else{
+    } else {
       getIndex();
     }
 
@@ -69,7 +69,7 @@ class WeatherController extends GetxController {
       });
     });
   }
-  
+
   RxInt getIndex() {
     return _currentIndex;
   }
