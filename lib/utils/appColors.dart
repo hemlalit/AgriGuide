@@ -7,6 +7,7 @@ class AppColors {
   static const textColor = Color(0xFF1B5E20); // Deep Green for text
   static const iconColor = Color(0xFFA5D6A7);
   static const black = Colors.black87;
+  static const blackFade = Colors.black12;
   static const white = Colors.white;
 
 // weather colors

@@ -1,12 +1,16 @@
-// ignore_for_file: public_member_api_docs, sort_constructors_first
 import 'package:AgriGuide/controllers/weather_controller.dart';
-import 'package:flutter/material.dart';
-
+import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/models/weather_data_hourly.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
+import 'package:AgriGuide/providers/weather_provider.dart';
 import 'package:AgriGuide/utils/appColors.dart';
+import 'package:AgriGuide/utils/theme.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get_rx/src/rx_types/rx_types.dart';
 import 'package:get/get_state_manager/src/rx_flutter/rx_obx_widget.dart';
 import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
 class HourlyDataWeather extends StatelessWidget {
   final WeatherDataHourly weatherDataHourly;
@@ -16,22 +20,27 @@ class HourlyDataWeather extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final settings = Provider.of<WeatherSettingsProvider>(context).settings;
+
     return Column(
       children: [
         Container(
           margin: const EdgeInsets.symmetric(vertical: 5, horizontal: 20),
           alignment: Alignment.topCenter,
-          child: const Text(
-            'Today',
-            style: TextStyle(fontSize: 18),
+          child: Text(
+            LocaleData.todayWeather.getString(context),
+            style: const TextStyle(fontSize: 18),
           ),
         ),
-        hourlyList(),
+        hourlyList(settings, context),
       ],
     );
   }
 
-  Widget hourlyList() {
+  Widget hourlyList(WeatherSettings settings, BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     return Container(
       height: 150,
       padding: const EdgeInsets.only(top: 10, bottom: 10),
@@ -41,7 +50,7 @@ class HourlyDataWeather extends StatelessWidget {
             ? 12
             : weatherDataHourly.hourly.length,
         itemBuilder: (context, index) {
-          return Obx((() => GestureDetector(
+          return Obx(() => GestureDetector(
                 onTap: () => cardIndex.value = index,
                 child: Container(
                   width: 90,
@@ -53,7 +62,9 @@ class HourlyDataWeather extends StatelessWidget {
                         offset: const Offset(0.5, 0),
                         blurRadius: 30,
                         spreadRadius: 1,
-                        color: AppColors.dividerLine.withAlpha(150),
+                        color: isDarkMode
+                            ? AppTheme.darkInputFill
+                            : AppColors.dividerLine.withAlpha(150),
                       ),
                     ],
                     gradient: cardIndex.value == index
@@ -70,9 +81,10 @@ class HourlyDataWeather extends StatelessWidget {
                     timestamp: weatherDataHourly.hourly[index].dt!,
                     weatherIcon:
                         weatherDataHourly.hourly[index].weather![0].icon!,
+                    useCelsius: settings.useCelsius,
                   ),
                 ),
-              )));
+              ));
         },
       ),
     );
@@ -85,6 +97,7 @@ class HourlyDetails extends StatelessWidget {
   final int cardIndex;
   final int timestamp;
   final String weatherIcon;
+  final bool useCelsius;
 
   const HourlyDetails({
     super.key,
@@ -93,6 +106,7 @@ class HourlyDetails extends StatelessWidget {
     required this.weatherIcon,
     required this.index,
     required this.cardIndex,
+    required this.useCelsius,
   });
 
   String getTimestamp(final timestamp) {
@@ -103,6 +117,14 @@ class HourlyDetails extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
+    double displayedTemp = temp.toDouble();
+    if (!useCelsius) {
+      displayedTemp = (temp * 9 / 5) + 32; // Convert to Fahrenheit
+    }
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
@@ -111,8 +133,13 @@ class HourlyDetails extends StatelessWidget {
           child: Text(
             getTimestamp(timestamp),
             style: TextStyle(
-              color:
-                  cardIndex == index ? Colors.white : AppColors.textColorBlack,
+              color: isDarkMode
+                  ? cardIndex == index
+                      ? AppColors.textColorBlack
+                      : Colors.white
+                  : cardIndex == index
+                      ? Colors.white
+                      : AppColors.textColorBlack,
             ),
           ),
         ),
@@ -127,13 +154,18 @@ class HourlyDetails extends StatelessWidget {
         Container(
           margin: const EdgeInsets.only(bottom: 10),
           child: Text(
-            "$temp°",
+            "${displayedTemp.toStringAsFixed(1)}°",
             style: TextStyle(
-              color:
-                  cardIndex == index ? Colors.white : AppColors.textColorBlack,
+              color:isDarkMode
+                  ? cardIndex == index
+                      ? AppColors.textColorBlack
+                      : Colors.white
+                  : cardIndex == index
+                      ? Colors.white
+                      : AppColors.textColorBlack,
             ),
           ),
-        )
+        ),
       ],
     );
   }

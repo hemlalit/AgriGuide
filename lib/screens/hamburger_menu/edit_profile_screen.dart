@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/models/user_model.dart';
 import 'package:AgriGuide/providers/profile_provider.dart';
+import 'package:AgriGuide/services/translator.dart';
 import 'package:AgriGuide/utils/read_user_data.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -34,6 +35,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
+  String bio = '';
+
+  void helper(final _bio) async {
+    String fromLanguage = 'en';
+    final toLanguage = await storage.read(key: 'ln');
+    String content = await TranslationService()
+        .translateText(_bio, fromLanguage, toLanguage);
+    setState(() {
+      bio = content;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
@@ -41,6 +54,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
     // Assuming the user data is already fetched and available
     final user = _profileProvider.user;
+    helper(user?.bio);
     _nameController = TextEditingController(text: user?.name ?? '');
     _usernameController = TextEditingController(text: user?.username ?? '');
     _bioController = TextEditingController(text: user?.bio ?? '');
@@ -200,6 +214,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             }
 
             final userData = snapshot.data!;
+            // helper(userData['bio']);
             return Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: SingleChildScrollView(
@@ -256,7 +271,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       ),
                       _buildTextField(
                         LocaleData.bio.getString(context),
-                        userData['bio'] == '' ? 'your bio' : userData['bio'],
+                        bio,
                         _bioController,
                         maxLines: 3,
                         required: false,

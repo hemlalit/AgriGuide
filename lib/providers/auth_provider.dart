@@ -18,6 +18,7 @@ class AuthProvider with ChangeNotifier {
   AuthStatus _status = AuthStatus.idle;
   bool _isLoading = false;
   bool _isAuthenticated = false;
+  bool _isRegistered = false;
   String _errorMessage = '';
   String _message = '';
   User? _user;
@@ -28,6 +29,7 @@ class AuthProvider with ChangeNotifier {
   String get errorMessage => _errorMessage;
   String get message => _message;
   bool get isAuthenticated => _isAuthenticated;
+  bool get isRegistered => _isRegistered;
 
   AuthProvider() {
     _loadAuthState();
@@ -48,10 +50,10 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> login(String email, String password) async {
     _setStatus(AuthStatus.loading);
+    _isLoading = true;
     notifyListeners();
 
     final response = await _authService.login(email, password);
-    _isLoading = true;
 
     if (response['status']) {
       _message = response['message'];
@@ -69,14 +71,18 @@ class AuthProvider with ChangeNotifier {
   Future<bool> register(
       String name, String email, String phone, String password) async {
     _setStatus(AuthStatus.loading);
+    _isLoading = true;
     notifyListeners();
     final response = await _authService.register(name, email, phone, password);
-    _isLoading = false;
     if (response['status']) {
       _message = response['message'];
+      _isRegistered = true;
+      _isLoading = false;
       return true;
     } else {
       _errorMessage = response['message'];
+      _isRegistered = false;
+      _isLoading = false;
       notifyListeners();
       return false;
     }

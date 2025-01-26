@@ -24,8 +24,10 @@ class TweetProvider with ChangeNotifier {
   // Loading state variables
   bool _isLoadingTweets = false;
   bool _isLoadingComments = false;
+  bool _isLoadingMoreTweets = false; // Added for lazy loading
   bool get isLoadingTweets => _isLoadingTweets;
   bool get isLoadingComments => _isLoadingComments;
+  bool get isLoadingMoreTweets => _isLoadingMoreTweets; // Added for lazy loading
 
   void setInitialTweetData(
       String tweetId, int retweetCount, bool hasRetweeted) {
@@ -35,28 +37,34 @@ class TweetProvider with ChangeNotifier {
     }
   }
 
-  Future<void> fetchTweets() async {
-    _isLoadingTweets = true;
+  Future<void> fetchTweets({int start = 0, int limit = 10}) async {
+    if (_isLoadingTweets || _isLoadingMoreTweets) return;
+    
+    if (start == 0) {
+      _isLoadingTweets = true;
+    } else {
+      _isLoadingMoreTweets = true;
+    }
     notifyListeners();
 
     final String? token = await storage.read(key: 'token');
     if (token == null) {
       _isLoadingTweets = false;
+      _isLoadingMoreTweets = false;
       notifyListeners();
       throw Exception("Token is null");
     }
 
     try {
       final response = await http.get(
-        Uri.parse("$baseUrl/post/feed"),
+        Uri.parse("$baseUrl/post/feed?start=$start&limit=$limit"),
         headers: {'Authorization': 'Bearer $token'},
       );
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         if (data is List) {
-          _isLoadingTweets = false;
-          _tweets = data
+          final List<Tweet> newTweets = data
               .map((tweet) {
                 try {
                   return Tweet.fromJson(tweet);
@@ -68,6 +76,12 @@ class TweetProvider with ChangeNotifier {
               .where((tweet) => tweet != null)
               .cast<Tweet>()
               .toList();
+          
+          if (start == 0) {
+            _tweets = newTweets; // Initial fetch
+          } else {
+            _tweets.addAll(newTweets); // Append new tweets for lazy loading
+          }
         } else {
           throw Exception("Unexpected response format");
         }
@@ -75,12 +89,11 @@ class TweetProvider with ChangeNotifier {
         throw Exception("Failed to load tweets: ${response.statusCode}");
       }
     } catch (e) {
-      _isLoadingTweets = false;
-      notifyListeners();
       debugPrint("Error fetching tweets: $e");
       throw Exception("Failed to load tweets");
     } finally {
       _isLoadingTweets = false;
+      _isLoadingMoreTweets = false;
       notifyListeners();
     }
   }
@@ -244,5 +257,7 @@ class TweetProvider with ChangeNotifier {
     }
   }
 
-  fetchMoreTweets() {}
+  Future<void> fetchMoreTweets() async {
+    await fetchTweets(start: _tweets.length);
+  }
 }

@@ -45,7 +45,7 @@ class ProfileProvider with ChangeNotifier {
     }
   }
 
-  Future<String> fetchAnotherUserProfile(BuildContext context, String anotherUsersId) async {
+  Future<String> fetchAnotherUserProfile(BuildContext context, String anotherUsersId,) async {
     _setStatus(AuthStatus.loading);
     _errorMessage = ''; // Clear previous errors
     try {
@@ -55,12 +55,12 @@ class ProfileProvider with ChangeNotifier {
       print(_user);
 
       // Update the user data in secure storage
-      String userData = jsonEncode(_user!.toJson());
-      await updateUserData(context, 'userData', userData);
+      // String userData = jsonEncode(_user!.toJson());
+      // await updateUserData(context, 'userData', userData);
 
       _setStatus(AuthStatus.fetched);
       print(data['message']);
-      return data['message'];
+      return jsonEncode(_user);
     } catch (error) {
       _errorMessage = '$error';
       print(_errorMessage);

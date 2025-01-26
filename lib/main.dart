@@ -7,14 +7,16 @@ import 'package:AgriGuide/providers/post_provider.dart';
 import 'package:AgriGuide/providers/product_provider.dart';
 import 'package:AgriGuide/providers/profile_provider.dart';
 import 'package:AgriGuide/providers/scheme_provider.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
+import 'package:AgriGuide/providers/weather_provider.dart';
 import 'package:AgriGuide/screens/notification_Screen/notification_screen.dart';
 import 'package:AgriGuide/services/message_service.dart';
+import 'package:AgriGuide/utils/theme.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:get/get.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/expense_provider.dart';
@@ -75,6 +77,11 @@ void main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
 
+  final themeProvider = ThemeProvider(
+    themeMode: ThemeMode.light, // Default theme mode
+  );
+  await themeProvider.loadThemePreference();
+
   runApp(
     MultiProvider(
       providers: [
@@ -85,6 +92,8 @@ void main() async {
         ChangeNotifierProvider(create: (_) => SchemeProvider()),
         ChangeNotifierProvider(create: (_) => TweetProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => themeProvider),
+        ChangeNotifierProvider(create: (_) => WeatherSettingsProvider()),
       ],
       child: const AgriGuideApp(),
     ),
@@ -120,14 +129,14 @@ class _AgriGuideAppState extends State<AgriGuideApp> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return GetMaterialApp(
       title: 'AgriGuide',
       navigatorKey: navigatorKey,
-      theme: ThemeData(
-        textTheme: GoogleFonts.poppinsTextTheme(),
-        primaryColor: Colors.green[800],
-        hintColor: Colors.green[600],
-      ),
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.themeMode,
       scaffoldMessengerKey: MessageService.scaffoldMessengerKey,
       supportedLocales: localization.supportedLocales,
       localizationsDelegates: localization.localizationsDelegates,

@@ -1,7 +1,9 @@
 import 'dart:io';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:AgriGuide/screens/crop_care/img_picker_dialog.dart';
 import 'package:AgriGuide/services/crop_api_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class CropRecognitionScreen extends StatefulWidget {
   const CropRecognitionScreen({Key? key}) : super(key: key);
@@ -38,15 +40,23 @@ class _CropRecognitionScreenState extends State<CropRecognitionScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(kToolbarHeight),
         child: AppBar(
           title: const Text('Crop Recognition'),
           flexibleSpace: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
               gradient: LinearGradient(
-                colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
+                colors: isDarkMode
+                    ? [
+                        const Color.fromARGB(255, 0, 100, 0),
+                        const Color.fromARGB(255, 0, 20, 0)
+                      ]
+                    : [Colors.lightGreen, const Color.fromARGB(255, 1, 128, 5)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),

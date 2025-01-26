@@ -65,7 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
         });
         // Show failure SnackBar
         ScaffoldMessenger.of(context).showSnackBar(
-          CustomSnackbar.show(context, auth.errorMessage),
+          CustomSnackbar.showError(context, auth.errorMessage),
         );
       }
     } else {
@@ -129,6 +129,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       CustomTextField(
                         icon: Icons.email,
                         hint: "Email",
+                        isEmail: true,
                         validator: Validators.validateEmail,
                         controller: _emailController,
                       ),
@@ -147,6 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             )
                           : ElevatedButton(
                               onPressed: () async {
+                                FocusScope.of(context).unfocus();
                                 await _login(auth);
                               },
                               style: ElevatedButton.styleFrom(
@@ -186,7 +188,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               TextSpan(
                                 text: 'Register',
                                 style: TextStyle(
-                                  color: Colors.blueAccent,
+                                  color: Colors.yellow,
                                   fontWeight: FontWeight.bold,
                                   fontSize: 18,
                                 ),

@@ -20,16 +20,17 @@ Future<Map<String, dynamic>?> readAnotherUserData(
     BuildContext context, String anotherUsersId) async {
   final provider = Provider.of<ProfileProvider>(context, listen: false);
   try {
-    await provider.fetchAnotherUserProfile(context, anotherUsersId);
+    final userData =
+        await provider.fetchAnotherUserProfile(context, anotherUsersId);
     // After fetching the user profile, update the local storage
     // String userData = jsonEncode(provider.user!.toJson()); // Use toJson
     // await updateUserData(context, 'anotherUserData', userData);
+    return jsonDecode(userData);
   } catch (e) {
     print(e);
-    MessageService.showSnackBar('Error fetching user data $e');
+    MessageService.showSnackBar('Error fetching user data - $e');
   }
-  final String? userData = await storage.read(key: 'userData');
-  return userData != null ? jsonDecode(userData) : null;
+  // final String? userData = await storage.read(key: 'userData');
 }
 
 Future<Map<String, dynamic>?> readUserData(BuildContext context) async {
@@ -37,8 +38,8 @@ Future<Map<String, dynamic>?> readUserData(BuildContext context) async {
   try {
     await provider.fetchUserProfile(context);
     // After fetching the user profile, update the local storage
-    // String userData = jsonEncode(provider.user!.toJson()); // Use toJson
-    // await updateUserData(context, 'userData', userData);
+    String userData = jsonEncode(provider.user!.toJson()); // Use toJson
+    await updateUserData(context, 'userData', userData);
   } catch (e) {
     print(e);
     MessageService.showSnackBar('Error fetching user data $e');
@@ -47,7 +48,13 @@ Future<Map<String, dynamic>?> readUserData(BuildContext context) async {
   return userData != null ? jsonDecode(userData) : null;
 }
 
-Future<String?> readData(BuildContext context, String key) async {
+Future<Map<String, dynamic>?> readData(BuildContext context, String key) async {
+  final String? data = await storage.read(key: key);
+  print(data);
+  return jsonDecode(data!);
+}
+
+Future<String?> readLn(BuildContext context, String key) async {
   final String? data = await storage.read(key: key);
   print(data);
   return data;

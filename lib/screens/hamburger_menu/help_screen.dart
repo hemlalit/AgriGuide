@@ -1,7 +1,10 @@
 import 'package:AgriGuide/localization/locales.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:AgriGuide/utils/appColors.dart';
+import 'package:AgriGuide/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
+import 'package:provider/provider.dart';
 
 class HelpScreen extends StatelessWidget {
   HelpScreen({super.key});
@@ -20,13 +23,21 @@ class HelpScreen extends StatelessWidget {
       // Add more FAQs here
     ];
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(LocaleData.help.getString(context)),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
+              colors: isDarkMode
+                  ? [
+                      const Color.fromARGB(255, 0, 100, 0),
+                      const Color.fromARGB(255, 0, 20, 0)
+                    ]
+                  : [Colors.lightGreen, const Color.fromARGB(255, 1, 128, 5)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -61,14 +72,16 @@ class HelpScreen extends StatelessWidget {
                   return Card(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(15.0),
-                      side: BorderSide(color: AppColors.primaryColor, width: 1),
+                      side: const BorderSide(
+                          color: AppColors.primaryColor, width: 1),
                     ),
                     margin: const EdgeInsets.symmetric(vertical: 8.0),
                     elevation: 3,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(15.0),
                       child: AnimatedExpansionTile(
-                        leading: const Icon(Icons.question_answer, color: Colors.green),
+                        leading: const Icon(Icons.question_answer,
+                            color: Colors.green),
                         title: Text(
                           faqs[index]['question']!,
                           style: const TextStyle(
@@ -81,14 +94,15 @@ class HelpScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(16.0),
                             decoration: BoxDecoration(
-                              color: Colors.lightGreen[50], // Subtle background color
+                              color: isDarkMode
+                                  ? AppTheme.darkCardColor
+                                  : Colors.green[50], // Subtle background color
                             ),
                             child: Text(
                               faqs[index]['answer']!,
                               style: const TextStyle(
                                 fontSize: 14,
                                 height: 1.5,
-                                color: Colors.black87,
                               ),
                             ),
                           ),

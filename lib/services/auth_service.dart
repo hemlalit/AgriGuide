@@ -58,7 +58,7 @@ class AuthService {
       }
     } catch (e) {
       print('hii Exception: $e');
-      return {'status': false, 'message': 'Error connecting to server'};
+      return {'status': false, 'message': 'Check your internet connection'};
     }
   }
 

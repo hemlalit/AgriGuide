@@ -1,4 +1,6 @@
 import 'package:AgriGuide/controllers/weather_controller.dart';
+import 'package:AgriGuide/services/translator.dart';
+import 'package:AgriGuide/utils/read_user_data.dart';
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:get/get.dart';
@@ -17,19 +19,27 @@ class _headerWidgetState extends State<headerWidget> {
   final WeatherController weatherController =
       Get.put(WeatherController(), permanent: true);
 
+  void getAdress(lat, lon) async {
+    List<Placemark> placemark = await placemarkFromCoordinates(lat, lon);
+    Placemark place = placemark[0];
+    String fromLanguage = 'en';
+    final toLanguage = await storage.read(key: 'ln');
+    // print(toLanguage);
+    String translatedtext = await TranslationService()
+        .translateText(place.locality!, fromLanguage, toLanguage);
+    String translatedDate = await TranslationService()
+        .translateText(date, fromLanguage, toLanguage);
+    setState(() {
+      city = translatedtext;
+      date = translatedDate;
+    });
+  }
+
   @override
   void initState() {
     getAdress(weatherController.getLattitude().value,
         weatherController.getLongitude().value);
     super.initState();
-  }
-
-  void getAdress(lat, lon) async {
-    List<Placemark> placemark = await placemarkFromCoordinates(lat, lon);
-    Placemark place = placemark[0];
-    setState(() {
-      city = place.locality!;
-    });
   }
 
   @override

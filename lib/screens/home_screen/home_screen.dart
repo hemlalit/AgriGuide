@@ -1,6 +1,6 @@
 import 'dart:convert';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:AgriGuide/utils/constants.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:http/http.dart' as http;
 import 'package:AgriGuide/local_database/database_helper.dart';
@@ -11,10 +11,11 @@ import 'package:AgriGuide/screens/feedScreen/feed_screen.dart';
 import 'package:AgriGuide/screens/home_screen/home_screen_content.dart';
 import 'package:AgriGuide/screens/home_screen/select_appbar.dart';
 import 'package:AgriGuide/screens/marketplace/farmer/marketplace_screen.dart';
-import 'package:AgriGuide/screens/weather_screen.dart';
+import 'package:AgriGuide/screens/weather/weather_screen.dart';
 import 'package:AgriGuide/widgets/bottom_navbar.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../widgets/hamburger_menu.dart';
 
 // function for listening to background changes
@@ -66,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
       });
       print("FCM Registration Token: $_token");
       await storage.write(key: 'fcmToken', value: _token);
-      
+
       // Send this token to your server
       if (_token != null) {
         sendTokenToServer(_token!);
@@ -99,8 +100,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> sendTokenToServer(String token) async {
     final userData =
-          await storage.read(key: 'userData'); // await the read operation
-      final data = jsonDecode(userData!);
+        await storage.read(key: 'userData'); // await the read operation
+    final data = jsonDecode(userData!);
     // safely unwrap the result
     const url = '$baseUrl/sendNotification/registerToken';
     final response = await http.post(

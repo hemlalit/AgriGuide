@@ -8,6 +8,15 @@ exports.registerUser = async (req, res) => {
   const { name, email, phone, password } = req.body;
 
   try {
+    const existingPhone = await User.findOne({ phone });
+    const existingEmail = await User.findOne({ email });
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Phone number already registered' });
+    }
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
     const userName = name.toLowerCase().replace(/\s+/g, '');
     await User.create({ name, email, phone, password, "username": userName });
     res.status(201).json({ message: "User registered successfully!" });
@@ -20,6 +29,15 @@ exports.registerVendor = async (req, res) => {
   const { name, email, phone, password } = req.body;
 
   try {
+    const existingPhone = await Vendor.findOne({ phone });
+    const existingEmail = await Vendor.findOne({ email });
+    if (existingPhone) {
+      return res.status(400).json({ error: 'Phone number already registered' });
+    }
+    if (existingEmail) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+
     const userName = name.toLowerCase().replace(/\s+/g, '');
     await Vendor.create({ name, email, phone, password, "username": userName });
     res.status(201).json({ message: "User registered successfully!" });

@@ -8,12 +8,11 @@ class WeatherController extends GetxController {
   final RxDouble _latitude = 0.0.obs;
   final RxDouble _longitude = 0.0.obs;
   final RxInt _currentIndex = 0.obs;
+  final Rx<WeatherData> weatherData = WeatherData().obs;
 
   RxBool checkloading() => _isLoading;
   RxDouble getLattitude() => _latitude;
   RxDouble getLongitude() => _longitude;
-
-  final weatherData = WeatherData().obs;
 
   WeatherData getData() {
     return weatherData.value;
@@ -26,48 +25,49 @@ class WeatherController extends GetxController {
     } else {
       getIndex();
     }
-
     super.onInit();
   }
 
   final LocationSettings locationSettings =
       const LocationSettings(accuracy: LocationAccuracy.high);
 
-  getLocation() async {
+  Future<void> getLocation() async {
     bool isServiceEnabled;
     LocationPermission locationPermission;
 
     isServiceEnabled = await Geolocator.isLocationServiceEnabled();
-
     if (!isServiceEnabled) {
-      return Future.error('Location is enabled');
+      return Future.error('Location services are disabled.');
     }
 
     locationPermission = await Geolocator.checkPermission();
-    print(locationPermission);
-
     if (locationPermission == LocationPermission.deniedForever) {
-      return Future.error('Location permissions are denied forever');
+      return Future.error('Location permissions are denied forever.');
     } else if (locationPermission == LocationPermission.denied) {
       locationPermission = await Geolocator.requestPermission();
       if (locationPermission == LocationPermission.denied) {
-        return Future.error('Location permission is denied');
+        return Future.error('Location permissions are denied.');
       }
     }
 
-    return await Geolocator.getCurrentPosition(
-            locationSettings: locationSettings)
-        .then((value) {
-      _latitude.value = value.latitude;
-      _longitude.value = value.longitude;
+    Position position = await Geolocator.getCurrentPosition(
+        locationSettings: locationSettings);
+    _latitude.value = position.latitude;
+    _longitude.value = position.longitude;
 
-      return FetchWeather()
-          .proccessData(value.latitude, value.longitude)
-          .then((value) {
-        weatherData.value = value;
-        _isLoading.value = false;
-      });
-    });
+    await fetchWeatherData();
+  }
+
+  Future<void> fetchWeatherData() async {
+    try {
+      final WeatherData fetchedData = await FetchWeather()
+          .proccessData(_latitude.value, _longitude.value);
+      weatherData.value = fetchedData;
+      _isLoading.value = false;
+    } catch (e) {
+      _isLoading.value = false;
+      rethrow;
+    }
   }
 
   RxInt getIndex() {

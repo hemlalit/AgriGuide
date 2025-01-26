@@ -4,6 +4,7 @@ import 'package:AgriGuide/utils/constants.dart';
 import 'package:dart_jsonwebtoken/dart_jsonwebtoken.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'login_screen.dart';
 
@@ -46,7 +47,7 @@ class _SplashScreenState extends State<SplashScreen>
 
   void _startSplashScreenTimer(BuildContext context) {
     Future.delayed(const Duration(seconds: 5), () async {
-      final storage = FlutterSecureStorage();
+      final storage = const FlutterSecureStorage();
       final token = await storage.read(key: 'token');
 
       if (token != null) {
@@ -143,17 +144,25 @@ class _SplashScreenState extends State<SplashScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Image.asset(
-                    'assets/icons/app_logo1.png',
+                    'assets/icons/app_icon3.png',
+                    height: 200,
+                    width: 200,
                   ),
-                  // const SizedBox(height: 20),
-                  // Text(
-                  //   'AgriGuide',
-                  //   style: GoogleFonts.poppins(
-                  //     color: Colors.white,
-                  //     fontSize: 28,
-                  //     fontWeight: FontWeight.bold,
-                  //   ),
-                  // ),
+                  Text(
+                    'AgriGuide',
+                    style: GoogleFonts.poppins(
+                      color: Colors.black,
+                      fontSize: 40,
+                      fontWeight: FontWeight.bold,
+                      shadows: [
+                        const Shadow(
+                          offset: Offset(2.0, 2.0),
+                          blurRadius: 3.0,
+                          color: Color.fromARGB(128, 0, 0, 0),
+                        ),
+                      ],
+                    ),
+                  ),
                   const SizedBox(height: 60),
                   AnimatedBuilder(
                     animation: _dotsAnimation,

@@ -1,7 +1,11 @@
 import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/providers/expense_provider.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:AgriGuide/services/message_service.dart';
+import 'package:AgriGuide/services/translator.dart';
 import 'package:AgriGuide/utils/appColors.dart';
+import 'package:AgriGuide/utils/read_user_data.dart';
+import 'package:AgriGuide/utils/theme.dart';
 import 'package:AgriGuide/widgets/divider_line.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
@@ -22,23 +26,59 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
   final _descriptionUpdateController = TextEditingController();
   final _amountUpdateController = TextEditingController();
 
+  late Future<void> _translatedDatesFuture;
+  Map<String, String> translatedDates = {};
+
+  // void helper(final _date) async {
+  //   String fromLanguage = 'en';
+  //   final toLanguage = await storage.read(key: 'ln');
+  //   String content = await TranslationService()
+  //       .translateText(_date, fromLanguage, toLanguage);
+  //   setState(() {
+  //     date = content;
+  //   });
+  // }
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ExpenseProvider>(context, listen: false).fetchExpenses();
     });
+    _translatedDatesFuture = _translateDates();
+  }
+
+  Future<void> _translateDates() async {
+    final expenses =
+        Provider.of<ExpenseProvider>(context, listen: false).expenses;
+    const fromLanguage = 'en';
+    final toLanguage = await storage.read(key: 'selected_ln') ?? 'en';
+    for (var expense in expenses) {
+      final dateString = DateFormat('MMM d, yyyy hh:mm').format(expense.date);
+      final translatedDate = await TranslationService()
+          .translateText(dateString, fromLanguage, toLanguage);
+      translatedDates[expense.id] = translatedDate;
+    }
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(LocaleData.trackEx.getString(context)),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
+              colors: isDarkMode
+                  ? [
+                      const Color.fromARGB(255, 0, 100, 0),
+                      const Color.fromARGB(255, 0, 20, 0)
+                    ]
+                  : [Colors.lightGreen, const Color.fromARGB(255, 1, 128, 5)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -60,11 +100,12 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(10),
                         ),
-                        color: Colors.green[50],
                         child: Padding(
                           padding: const EdgeInsets.all(16.0),
                           child: Text(
-                            context.formatString(LocaleData.totalExpense.getString(context), ['₹${expenseProvider.totalExpense}']) ,
+                            context.formatString(
+                                LocaleData.totalExpense.getString(context),
+                                ['₹${expenseProvider.totalExpense}']),
                             style: const TextStyle(
                               fontSize: 18,
                               color: Colors.green,
@@ -79,7 +120,6 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
                         decoration: InputDecoration(
                           labelText: LocaleData.expenseDesc.getString(context),
                           filled: true,
-                          fillColor: Colors.green[50],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
@@ -92,7 +132,6 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
                         decoration: InputDecoration(
                           labelText: LocaleData.amount.getString(context),
                           filled: true,
-                          fillColor: Colors.green[50],
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
                             borderSide: BorderSide.none,
@@ -104,12 +143,11 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
                       ElevatedButton(
                         onPressed: () => _addExpense(context),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryColor,
+                          // backgroundColor: AppColors.primaryColor,
                           foregroundColor: Colors.white,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
                         ),
                         child: Padding(
                           padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -124,6 +162,8 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
                           itemBuilder: (context, index) {
                             final Expense expense =
                                 expenseProvider.expenses[index];
+                            final translatedDate =
+                                translatedDates[expense.id] ?? '';
                             return Card(
                               elevation: 2,
                               margin: const EdgeInsets.symmetric(vertical: 5),
@@ -132,10 +172,7 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
                               ),
                               child: ListTile(
                                 title: Text(expense.description),
-                                subtitle: Text(
-                                  DateFormat('MMM d, yyyy hh:mm')
-                                      .format(expense.date),
-                                ),
+                                subtitle: Text(translatedDate),
                                 trailing: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
@@ -224,17 +261,21 @@ class _TrackExpenseScreenState extends State<TrackExpenseScreen> {
       context: context,
       builder: (context) {
         return AlertDialog(
+          backgroundColor: AppTheme.darkCardColor,
           title: Text(LocaleData.updateExpense.getString(context)),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: _descriptionUpdateController,
-                decoration: InputDecoration(labelText: LocaleData.newDesc.getString(context)),
+                decoration: InputDecoration(
+                    labelText: LocaleData.newDesc.getString(context)),
               ),
+              const SizedBox(height: 10),
               TextField(
                 controller: _amountUpdateController,
-                decoration: InputDecoration(labelText: LocaleData.newAmt.getString(context)),
+                decoration: InputDecoration(
+                    labelText: LocaleData.newAmt.getString(context)),
                 keyboardType: TextInputType.number,
               ),
             ],

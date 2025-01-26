@@ -34,6 +34,11 @@ mixin LocaleData {
   static const String postSuccess = "Post posted successfully!!";
   static const String follow = "Follow";
 
+  //weather screen
+  static const String kmPerHr = '%a km/h';
+  static const String todayWeather = 'Today';
+  static const String nextDays = 'Next Days';
+
   //noti screen
   static const String saveSettings = 'Save Settings';
   static const String notifications = 'Notifications';
@@ -42,10 +47,11 @@ mixin LocaleData {
   static const String yesterday = 'yesterday';
   static const String older = 'older';
   static const String clearAll = 'clearAll';
-  
-  //crop care 
+
+  //crop care
   static const String cropIden = 'Crop Recognition';
   static const String dieasesIden = 'Disease Recognition';
+  static const String askAgbot = 'Ask AGbot...';
 
   // hamburger drawer
   static const String profile = 'Profile';
@@ -124,7 +130,7 @@ mixin LocaleData {
   static const String productGallery = 'Product Gallery';
   static const String reviews = 'Reviews & Ratings';
   static const String rating = 'Rating: %a';
-  static const String recommedation= 'Recommended Products';
+  static const String recommedation = 'Recommended Products';
   static const String compare = 'Compare Similar Products';
   static const String price = 'Price';
   static const String ratings = 'Rating';
@@ -140,13 +146,17 @@ mixin LocaleData {
   static const String stock = 'Stock: %a';
   static const String off = '%a OFF';
 
-
   static const Map<String, dynamic> EN = {
     home: 'AgriGuide',
     cropCare: 'Crop Care',
     weather: 'Weather',
     marketplace: 'Marketplace',
     feed: 'AgriFeed',
+
+    //weather screen
+    kmPerHr: '%a km/h',
+    todayWeather: 'Today',
+    nextDays: 'Next Days',
 
     //home screen
     mAgo: '%am ago',
@@ -181,6 +191,7 @@ mixin LocaleData {
     //crop care
     cropIden: 'Crop Recognition',
     dieasesIden: 'Disease Recognition',
+    askAgbot: 'Ask AGbot...',
 
     //hamburger drawer
     profile: 'Profile',
@@ -242,7 +253,7 @@ mixin LocaleData {
     saveChanges: "Save Changes",
     changeBanner: 'Tap to change banner',
 
-    //cart screen 
+    //cart screen
     myCart: 'My Cart',
     yourCartEmpty: 'Your cart is empty',
     removedFromCart: 'Removed from cart!',
@@ -304,6 +315,11 @@ mixin LocaleData {
     postSuccess: 'पोस्ट सफलतापूर्वक पोस्ट किया गया!',
     follow: 'फॉलो करें',
 
+    //weather screen
+    kmPerHr: '%a कि/घं',
+    todayWeather: 'आज',
+    nextDays: 'अगले दिन',
+
     //noti screen
     saveSettings: 'सेटिंग्स सेव करें',
     notifications: 'सूचनाएँ',
@@ -316,7 +332,8 @@ mixin LocaleData {
     //crop care
     cropIden: 'फसल पहचान',
     dieasesIden: 'रोग पहचान',
-    
+    askAgbot: 'AGbot से पूछें...',
+
     //hamburger drawer
     profile: 'प्रोफाइल',
     trackEx: 'खर्च ट्रैक करें',
@@ -341,7 +358,7 @@ mixin LocaleData {
     newAmt: 'नई राशि',
     update: 'अपडेट',
 
-     //share app
+    //share app
     title: 'इस शानदार ऐप को देखो: %a',
     subject: 'एग्रीगाइड ऐप',
 
@@ -353,7 +370,7 @@ mixin LocaleData {
     settings: 'सेटिंग्स',
     chooseThemeColor: 'थीम का रंग चुनो',
 
-     //help screen
+    //help screen
     q1: 'ऐप का कैसे इस्तेमाल करें?',
     a1: 'आप होम स्क्रीन पर गाइड देख सकते हैं।',
     q2: 'खर्चों को कैसे ट्रैक करें?',
@@ -377,7 +394,7 @@ mixin LocaleData {
     saveChanges: "सेव करें",
     changeBanner: 'बैनर बदलने के लिए टैप करें',
 
-    //cart screen 
+    //cart screen
     myCart: 'मेरी कार्ट',
     yourCartEmpty: 'आपकी कार्ट खाली है।',
     removedFromCart: 'कार्ट से हटा दिया!',
@@ -439,6 +456,11 @@ mixin LocaleData {
     postSuccess: 'पोस्ट यशस्वी पणे पोस्ट केली आहे!',
     follow: 'फॉलो करा',
 
+    //weather screen
+    kmPerHr: '%a कि/ता',
+    todayWeather: 'आज',
+    nextDays: 'पुढचे दिवस',
+
     //noti screen
     saveSettings: 'सेटिंग्ज जतन करा',
     notifications: 'सूचना',
@@ -451,6 +473,7 @@ mixin LocaleData {
     //crop care
     cropIden: 'पिकांची ओळख',
     dieasesIden: 'रोग ओळख',
+    askAgbot: 'AGbot ला विचारा...',
 
     //hamburger drawer
     profile: 'प्रोफाइल',
@@ -476,7 +499,7 @@ mixin LocaleData {
     newAmt: 'नवीन रक्कम',
     update: 'अपडेट',
 
-     //share app
+    //share app
     title: 'पाहा हे अप्रतिम अॅप: %a',
     subject: 'अॅग्रीगाईड अॅप',
 
@@ -488,7 +511,7 @@ mixin LocaleData {
     settings: 'सेटिंग्स',
     chooseThemeColor: 'थीम रंग निवडा',
 
-     //help screen
+    //help screen
     q1: 'अॅप कसे वापरावे?',
     a1: 'आपण होम स्क्रीनवर गाइड पाहू शकता.',
     q2: 'खर्च कसे ट्रॅक करायचे?',
@@ -512,7 +535,7 @@ mixin LocaleData {
     saveChanges: "बदल जतन करा",
     changeBanner: 'बॅनर बदलण्यासाठी टॅप करा',
 
-    //cart screen 
+    //cart screen
     myCart: 'माझी कार्ट',
     yourCartEmpty: 'तुमची कार्ट रिकामी आहे.',
     removedFromCart: 'कार्टमधून काढले गेले!',

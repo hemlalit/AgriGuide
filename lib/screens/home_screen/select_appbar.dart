@@ -1,6 +1,7 @@
 import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/screens/marketplace/farmer/cart_screen.dart';
 import 'package:AgriGuide/screens/notification_Screen/notification_screen.dart';
+import 'package:AgriGuide/screens/weather/weather_settings.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 
@@ -89,9 +90,19 @@ AppBar selectAppBar(BuildContext context, int selectedIndex,
                     );
                   },
                 )
-              : const SizedBox(
-                  width: 12,
-                )
+              : selectedIndex == 3
+                  ? IconButton(
+                      icon: const Icon(Icons.settings),
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => const WeatherSettingsScreen()),
+                        );
+                      },
+                    )
+                  : const SizedBox(
+                      width: 12,
+                    )
     ],
   );
 }

@@ -1,4 +1,5 @@
 import 'package:AgriGuide/localization/locales.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:provider/provider.dart';
@@ -11,16 +12,24 @@ class CartScreen extends StatelessWidget {
     final productProvider = Provider.of<ProductProvider>(context);
     final cartProducts = productProvider.cartItems;
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(LocaleData.myCart.getString(context)),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-                colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
+              colors: isDarkMode
+                  ? [
+                      const Color.fromARGB(255, 0, 100, 0),
+                      const Color.fromARGB(255, 0, 20, 0)
+                    ]
+                  : [Colors.lightGreen, const Color.fromARGB(255, 1, 128, 5)],
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+            ),
           ),
         ),
       ),
@@ -53,7 +62,9 @@ class CartScreen extends StatelessWidget {
                           borderRadius: const BorderRadius.horizontal(
                               left: Radius.circular(10)),
                           child: Image.network(
-                            product.imageUrls.isNotEmpty ? product.imageUrls[0] : '',
+                            product.imageUrls.isNotEmpty
+                                ? product.imageUrls[0]
+                                : '',
                             height: 100,
                             width: 100,
                             fit: BoxFit.cover,
@@ -90,7 +101,8 @@ class CartScreen extends StatelessWidget {
                             productProvider.removeFromCart(product.id!);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
-                                content: Text(LocaleData.removedFromCart.getString(context)),
+                                content: Text(LocaleData.removedFromCart
+                                    .getString(context)),
                               ),
                             );
                           },

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class MessageInput extends StatelessWidget {
   final void Function(String) onSend;
 
-  const MessageInput({required this.onSend, Key? key}) : super(key: key);
+  const MessageInput({required this.onSend, super.key});
 
   @override
   Widget build(BuildContext context) {

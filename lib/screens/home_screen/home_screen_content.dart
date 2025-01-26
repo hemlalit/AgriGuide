@@ -1,9 +1,11 @@
 import 'dart:convert';
 import 'package:AgriGuide/providers/post_provider.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:AgriGuide/screens/postScreen/create_new_post.dart';
 import 'package:AgriGuide/screens/postScreen/post_detail_screen.dart';
 import 'package:AgriGuide/utils/constants.dart';
 import 'package:AgriGuide/utils/helper_functions.dart';
+import 'package:AgriGuide/utils/theme.dart';
 import 'package:AgriGuide/widgets/post_widgets/post_card.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -17,9 +19,10 @@ class HomeScreenContent extends StatefulWidget {
 }
 
 class _HomeScreenContentState extends State<HomeScreenContent> {
-  static const storage = FlutterSecureStorage();
-  String? userId;
   final ScrollController _scrollController = ScrollController();
+  static const storage = FlutterSecureStorage();
+
+  String? userId;
   bool _isLoadingMore = false;
 
   Future<void> fetchUser() async {
@@ -40,13 +43,15 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   void initState() {
     super.initState();
     fetchUser();
-    // Fetch tweets when the widget is initialized
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final tweetProvider = Provider.of<TweetProvider>(context, listen: false);
-      tweetProvider.fetchTweets();
-    });
-
+    _fetchInitialTweets();
     _scrollController.addListener(_onScroll);
+  }
+
+  Future<void> _fetchInitialTweets() async {
+    final tweetProvider = Provider.of<TweetProvider>(context, listen: false);
+    if (tweetProvider.tweets.isEmpty) {
+      await tweetProvider.fetchTweets();
+    }
   }
 
   @override
@@ -57,7 +62,9 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   }
 
   void _onScroll() {
-    if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent && !_isLoadingMore) {
+    if (_scrollController.position.pixels ==
+            _scrollController.position.maxScrollExtent &&
+        !_isLoadingMore) {
       setState(() {
         _isLoadingMore = true;
       });
@@ -73,12 +80,17 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
   @override
   Widget build(BuildContext context) {
     final tweetProvider = Provider.of<TweetProvider>(context);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
 
     return Scaffold(
       body: RefreshIndicator(
-        onRefresh: tweetProvider.fetchTweets,
+        onRefresh: () async {
+          setState(() {
+            _isLoadingMore = false; // Reset loading state on refresh
+          });
+          await tweetProvider.fetchTweets();
+        },
         child: tweetProvider.isLoadingTweets
             ? const Center(
                 child: CircularProgressIndicator(),
@@ -89,9 +101,11 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                 thickness: 4.0,
                 radius: const Radius.circular(2.0),
                 child: ListView.builder(
+                  key: PageStorageKey<String>('tweetList'),
                   controller: _scrollController,
                   padding: globalPadding,
-                  itemCount: tweetProvider.tweets.length + (_isLoadingMore ? 1 : 0),
+                  itemCount:
+                      tweetProvider.tweets.length + (_isLoadingMore ? 1 : 0),
                   itemBuilder: (context, index) {
                     if (index == tweetProvider.tweets.length) {
                       return const Center(
@@ -103,7 +117,8 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       onTap: () {
                         Navigator.of(context).push(
                           MaterialPageRoute<void>(
-                            builder: (context) => PostDetailScreen(tweet: tweet),
+                            builder: (context) =>
+                                PostDetailScreen(tweet: tweet),
                           ),
                         );
                       },
@@ -140,7 +155,8 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
             tweetProvider.fetchTweets();
           }
         },
-        backgroundColor: Colors.green,
+        backgroundColor: isDarkMode ? AppTheme.darkBtnColor : Colors.green,
+        foregroundColor: isDarkMode ? Colors.white : Colors.black,
         child: const Icon(Icons.add),
       ),
     );

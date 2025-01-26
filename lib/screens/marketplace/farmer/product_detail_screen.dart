@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/models/product.dart';
 import 'package:AgriGuide/providers/product_provider.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -48,15 +49,22 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget build(BuildContext context) {
     final productProvider =
         Provider.of<ProductProvider>(context, listen: false);
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.product.name),
         backgroundColor: Colors.green.shade700,
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
+              colors: isDarkMode
+                  ? [
+                      const Color.fromARGB(255, 0, 100, 0),
+                      const Color.fromARGB(255, 0, 20, 0)
+                    ]
+                  : [Colors.lightGreen, const Color.fromARGB(255, 1, 128, 5)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
@@ -180,16 +188,19 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
               ),
               const SizedBox(height: 8),
               Text(
-                context.formatString(LocaleData.vendorName.getString(context), [vendor.name]),
+                context.formatString(
+                    LocaleData.vendorName.getString(context), [vendor.name]),
                 style: const TextStyle(fontSize: 14),
               ),
               Text(
-                context.formatString(LocaleData.contact.getString(context), [vendor.phone]),
+                context.formatString(
+                    LocaleData.contact.getString(context), [vendor.phone]),
                 style: const TextStyle(fontSize: 14),
               ),
               if (vendor.address != null) // Check if address is not null
                 Text(
-                  context.formatString(LocaleData.location.getString(context), [vendor.address!.city, vendor.address!.state]),
+                  context.formatString(LocaleData.location.getString(context),
+                      [vendor.address!.city, vendor.address!.state]),
                   style: const TextStyle(fontSize: 14),
                 ),
             ],
@@ -275,7 +286,8 @@ class _ProductDetailScreenState extends State<ProductDetailScreen> {
   Widget _buildReviewItem(Review review) {
     return ListTile(
       title: Text(review.comment),
-      subtitle: Text(context.formatString(LocaleData.rating.getString(context), [review.rating])),
+      subtitle: Text(context
+          .formatString(LocaleData.rating.getString(context), [review.rating])),
     );
   }
 

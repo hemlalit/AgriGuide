@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final IconData? icon;
   final String hint;
   final TextEditingController controller;
   final bool isPassword;
+  final bool isPhone;
+  final bool isEmail;
   final String? Function(String?)? validator;
 
   const CustomTextField({
@@ -13,6 +16,8 @@ class CustomTextField extends StatelessWidget {
     required this.hint,
     required this.controller,
     this.isPassword = false,
+    this.isPhone = false,
+    this.isEmail = false,
     this.validator,
   });
 
@@ -22,6 +27,17 @@ class CustomTextField extends StatelessWidget {
       controller: controller,
       obscureText: isPassword,
       validator: validator,
+      keyboardType: isPhone
+          ? TextInputType.phone
+          : isEmail
+              ? TextInputType.emailAddress
+              : null,
+      inputFormatters: isPhone
+          ? <TextInputFormatter>[
+              FilteringTextInputFormatter.digitsOnly,
+              LengthLimitingTextInputFormatter(10),
+            ]
+          : null,
       decoration: _inputDecoration(hint, icon),
     );
   }

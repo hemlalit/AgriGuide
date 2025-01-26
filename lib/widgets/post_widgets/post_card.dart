@@ -1,6 +1,9 @@
 import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/providers/post_provider.dart';
 import 'package:AgriGuide/screens/hamburger_menu/profile_screen.dart';
+import 'package:AgriGuide/services/translator.dart';
+import 'package:AgriGuide/utils/read_user_data.dart';
+import 'package:AgriGuide/widgets/divider_line.dart';
 import 'package:AgriGuide/widgets/like_animation.dart';
 import 'package:AgriGuide/widgets/post_widgets/action_button.dart';
 import 'package:AgriGuide/widgets/post_widgets/comments_section.dart';
@@ -55,9 +58,26 @@ class _TweetCardState extends State<TweetCard> {
   late int _initialRetweetCount;
   late bool _initialHasRetweeted;
 
+  String postContent = '';
+  String authorName = '';
+
+  void helper() async {
+    String fromLanguage = 'en';
+    final toLanguage = await storage.read(key: 'ln');
+    String content = await TranslationService()
+        .translateText(widget.content, fromLanguage, toLanguage);
+    String name = await TranslationService()
+        .translateText(widget.authorName, fromLanguage, toLanguage);
+    setState(() {
+      postContent = content;
+      authorName = name;
+    });
+  }
+
   @override
   void initState() {
     super.initState();
+    helper();
     _isLiked = widget.isLiked ?? false;
     print(_isLiked);
     _likeCount = widget.initialLikeCount ?? 0;
@@ -150,20 +170,21 @@ class _TweetCardState extends State<TweetCard> {
 
   @override
   Widget build(BuildContext context) {
+    helper();
     return Container(
-      padding: const EdgeInsets.all(12),
-      margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
+      padding: const EdgeInsets.symmetric(vertical: 12),
+      // margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 0),
       decoration: BoxDecoration(
-        color: Theme.of(context).cardColor,
-        borderRadius: BorderRadius.circular(12),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 5,
-            offset: const Offset(0, 3),
+          // color: Theme.of(context).cardColor,
+          // borderRadius: BorderRadius.circular(12),
+          // boxShadow: [
+          //   BoxShadow(
+          //     color: Colors.black.withOpacity(0.1),
+          //     blurRadius: 5,
+          //     offset: const Offset(0, 3),
+          //   ),
+          // ],
           ),
-        ],
-      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -191,7 +212,7 @@ class _TweetCardState extends State<TweetCard> {
                               context, widget.authorId!, true)
                           : null,
                       child: Text(
-                        widget.authorName ?? '',
+                        authorName ?? '',
                         style: Theme.of(context)
                             .textTheme
                             .headlineLarge!
@@ -229,7 +250,7 @@ class _TweetCardState extends State<TweetCard> {
 
           // Tweet Content
           Text(
-            widget.content ?? 'content not available',
+            postContent,
             style: Theme.of(context)
                 .textTheme
                 .bodyMedium!
@@ -292,7 +313,8 @@ class _TweetCardState extends State<TweetCard> {
                 ),
               ),
             ],
-          )
+          ),
+          DividerLine().horizontalDividerLine(context),
         ],
       ),
     );

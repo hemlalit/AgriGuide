@@ -21,6 +21,48 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final TextEditingController _phoneController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool isLoading = false;
+
+  Future<void> _register(AuthProvider auth) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    if (_formKey.currentState!.validate()) {
+      await auth.register(
+        _nameController.text,
+        _emailController.text,
+        _phoneController.text,
+        _passwordController.text,
+      );
+
+      if (auth.isRegistered) {
+        setState(() {
+          isLoading = false;
+        });
+
+        // Show success SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackbar.show(context, auth.message),
+        );
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const LoginScreen()));
+      } else {
+        setState(() {
+          isLoading = false;
+        });
+        // Show failure SnackBar
+        ScaffoldMessenger.of(context).showSnackBar(
+          CustomSnackbar.showError(context, auth.errorMessage),
+        );
+      }
+    } else {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final auth = Provider.of<AuthProvider>(context);
@@ -75,6 +117,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Email TextField
                       CustomTextField(
                         icon: Icons.email,
+                        isEmail: true,
                         hint: "Email",
                         controller: _emailController,
                         validator: Validators.validateEmail,
@@ -84,6 +127,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       // Phone TextField
                       CustomTextField(
                         icon: Icons.phone,
+                        isPhone: true,
                         hint: "Phone Number",
                         controller: _phoneController,
                         validator: Validators.validatePhone,
@@ -101,53 +145,36 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       const SizedBox(height: 40),
 
                       // Register Button
-                      ElevatedButton(
-                        onPressed: () async {
-                          if (_formKey.currentState!.validate()) {
-                            bool isRegistered = await auth.register(
-                              _nameController.text,
-                              _emailController.text,
-                              _phoneController.text,
-                              _passwordController.text,
-                            );
-
-                            if (isRegistered) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbar.show(context, auth.message),
-                              );
-
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => const LoginScreen()),
-                              );
-                            } else {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                CustomSnackbar.show(context, auth.errorMessage),
-                              );
-                            }
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(
-                              vertical: 15, horizontal: 80),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          backgroundColor: Colors.white,
-                          elevation: 5,
-                        ),
-                        child: const Text(
-                          'Sign Up',
-                          style: TextStyle(
-                            color: Color(0xFF56ab2f),
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
+                      isLoading
+                          ? const CircularProgressIndicator(
+                              color: Colors.white,
+                            )
+                          : ElevatedButton(
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  FocusScope.of(context).unfocus();
+                                  await _register(auth);
+                                }
+                              },
+                              style: ElevatedButton.styleFrom(
+                                padding: const EdgeInsets.symmetric(
+                                    vertical: 15, horizontal: 80),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                backgroundColor: Colors.white,
+                                elevation: 5,
+                              ),
+                              child: const Text(
+                                'Sign Up',
+                                style: TextStyle(
+                                  color: Color(0xFF56ab2f),
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
                       const SizedBox(height: 20),
-
                       // Already Have Account
                       GestureDetector(
                         onTap: () {
@@ -167,7 +194,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               TextSpan(
                                 text: 'Login',
                                 style: TextStyle(
-                                  color: Colors.blue,
+                                  color: Colors.yellow,
                                   fontWeight: FontWeight.w500,
                                   fontSize: 18,
                                 ),

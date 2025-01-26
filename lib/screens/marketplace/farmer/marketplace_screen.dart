@@ -1,8 +1,10 @@
 import 'package:AgriGuide/localization/locales.dart';
 import 'package:AgriGuide/providers/product_provider.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:AgriGuide/screens/marketplace/farmer/carousel_banner.dart';
 import 'package:AgriGuide/screens/marketplace/farmer/product_detail_screen.dart';
 import 'package:AgriGuide/screens/marketplace/farmer/search_results_screen.dart';
+import 'package:AgriGuide/utils/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:provider/provider.dart';
@@ -39,6 +41,9 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
     final isError = productProvider.state == ProductState.error;
     final errorMessage = productProvider.errorMessage;
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     // Recommendations based on the query
     final recommendations = products
         .where((product) =>
@@ -47,7 +52,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        // backgroundColor: Colors.white,
         elevation: 0,
         toolbarHeight: 56,
         flexibleSpace: Column(
@@ -57,7 +62,7 @@ class _MarketplaceScreenState extends State<MarketplaceScreen> {
                 hintText: LocaleData.searchProducts.getString(context),
                 prefixIcon: const Icon(Icons.search),
                 filled: true,
-                fillColor: Colors.green[100],
+                fillColor: isDarkMode ? AppTheme.darkBackground : Colors.green[100],
                 border: const OutlineInputBorder(
                   borderSide: BorderSide.none,
                 ),

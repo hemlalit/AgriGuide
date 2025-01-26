@@ -12,6 +12,7 @@ class DividerLine {
       margin: const EdgeInsets.only(bottom: 10.0),
     );
   }
+
   verticalDividerLine(BuildContext context) {
     // double width = MediaQuery.of(context).size.width;
 

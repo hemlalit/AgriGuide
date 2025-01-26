@@ -36,18 +36,11 @@ class DatabaseHelper {
     print(username);
     final path = join(await getDatabasesPath(), '${username}_agriguide.db');
 
-    // Check if the database already exists
-    if (await databaseExists(path)) {
-      print('Database already exists for user: $username');
-      return await openDatabase(path);
-    }
-    print('Creating new database: $path');
-    // await storage.write(key: '${username}_db', value: '${username}_agriguide.db');
-
     return await openDatabase(
       path,
-      version: 1,
+      version: 3, // Increment the database version
       onCreate: _onCreate,
+      onUpgrade: _onUpgrade, // Handle database schema changes
     );
   }
 
@@ -60,6 +53,42 @@ class DatabaseHelper {
         timestamp TEXT,
         isSeen BOOLEAN DEFAULT 0
       )
+    ''');
+    await db.execute('''
+      CREATE TABLE messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        message TEXT,
+        sender TEXT,
+        timestamp TEXT
+      )
+    ''');
+  }
+
+  Future<void> _onUpgrade(Database db, int oldVersion, int newVersion) async {
+    if (oldVersion < 2) {
+      await db.execute('''
+        CREATE TABLE messages (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          message TEXT,
+          sender TEXT
+        )
+      ''');
+    }
+
+    if (oldVersion < 3) {
+      await db.execute('''
+        ALTER TABLE messages ADD COLUMN timestamp TEXT
+      ''');
+    }
+
+    // if (oldVersion == 1) {
+    //   await addIsSeenColumn(db);
+    // }
+  }
+
+  Future<void> addIsSeenColumn(Database db) async {
+    await db.execute('''
+      ALTER TABLE notifications ADD COLUMN isSeen BOOLEAN DEFAULT 0
     ''');
   }
 
@@ -74,11 +103,6 @@ class DatabaseHelper {
 
   Future<List<Map<String, dynamic>>> getNotifications() async {
     Database db = await database;
-    // Extract and print the database name
-    // String dbPath = db.path;
-    // String dbName = basename(dbPath);
-    // print('Database Name: $dbName');
-
     return await db.query('notifications');
   }
 
@@ -107,14 +131,6 @@ class DatabaseHelper {
     await database;
   }
 
-  // Function to add the isSeen column
-  Future<void> addIsSeenColumn() async {
-    final db = await database;
-    await db.execute('''
-      ALTER TABLE notifications ADD COLUMN isSeen BOOLEAN DEFAULT 0
-    ''');
-  }
-
   Future<void> markMultipleAsSeen(List<int> notificationIds) async {
     final db = await database;
     final batch = db.batch();
@@ -129,5 +145,23 @@ class DatabaseHelper {
     }
 
     await batch.commit(noResult: true);
+  }
+
+  Future<void> insertMessage(String message, String sender) async {
+    final db = await database;
+    await db.insert(
+      'messages',
+      {
+        'message': message,
+        'sender': sender,
+        'timestamp': DateTime.now().toIso8601String(),
+      },
+      conflictAlgorithm: ConflictAlgorithm.replace,
+    );
+  }
+
+  Future<List<Map<String, dynamic>>> getMessages() async {
+    final db = await database;
+    return await db.query('messages', orderBy: 'timestamp ASC');
   }
 }

@@ -4,12 +4,15 @@ import 'package:AgriGuide/local_database/database_helper.dart';
 import 'package:AgriGuide/notifications/local_notifications/local_notifications.dart';
 import 'package:AgriGuide/notifications/local_notifications/notification_controller.dart';
 import 'package:AgriGuide/localization/locales.dart';
+import 'package:AgriGuide/providers/theme_provider.dart';
 import 'package:AgriGuide/utils/helper_functions.dart';
+import 'package:AgriGuide/widgets/custom_alert.dart';
 import 'package:AgriGuide/widgets/divider_line.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localization/flutter_localization.dart';
 import 'package:awesome_notifications/awesome_notifications.dart';
+import 'package:provider/provider.dart';
 
 class NotificationScreen extends StatefulWidget {
   final String? payload;
@@ -207,8 +210,16 @@ class _NotificationScreenState extends State<NotificationScreen> {
               padding: const EdgeInsets.all(8.0),
               child: IconButton(
                 onPressed: () async {
-                  await DatabaseHelper().deleteAllNotifications();
-                  await _loadNotifications();
+                  showDialog(
+                    context: context,
+                    builder: (context) => CustomDialog(
+                      title: LocaleData.clearAll.getString(context),
+                      onSure: () async {
+                        await DatabaseHelper().deleteAllNotifications();
+                        await _loadNotifications();
+                      },
+                    ),
+                  );
                 },
                 icon: const Icon(Icons.clear_all_rounded),
                 tooltip: LocaleData.clearAll.getString(context),
@@ -295,13 +306,21 @@ class _NotificationScreenState extends State<NotificationScreen> {
       }
     }
 
+    final themeProvider = Provider.of<ThemeProvider>(context);
+    final isDarkMode = themeProvider.isDarkMode;
+
     return Scaffold(
       appBar: AppBar(
         title: Text(LocaleData.notifications.getString(context)),
         flexibleSpace: Container(
-          decoration: const BoxDecoration(
+          decoration: BoxDecoration(
             gradient: LinearGradient(
-              colors: [Colors.lightGreen, Color.fromARGB(255, 1, 128, 5)],
+              colors: isDarkMode
+                  ? [
+                      const Color.fromARGB(255, 0, 100, 0),
+                      const Color.fromARGB(255, 0, 20, 0)
+                    ]
+                  : [Colors.lightGreen, const Color.fromARGB(255, 1, 128, 5)],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
             ),
